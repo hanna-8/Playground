@@ -116,13 +116,57 @@ object Chapter3 {
       foldLeftRight(xs, 0)(_ + _)
     }
 
-    def appendFR[A](as: List[A], bs: List[A]): List[A] = {
+    def append[A](as: List[A], bs: List[A]): List[A] = {
       foldRight(as, bs)((x, xs) => Cons(x, xs))
     }
     
-    def appendFL[A](as: List[A], bs: List[A]): List[A] = {
-      foldLeft(bs, Nil)((xs, x) => Cons(x, as))
+   
+    def concat[A](ll: List[List[A]]): List[A] = {
+      foldLeft(ll, Nil: List[A])(append)
     }
+ 
+    def addOne(li: List[Int]): List[Int] = {
+      foldRight(li, Nil: List[Int])((h, t) => Cons(h + 1, t))
+    }
+    
+
+    def stringify(ld: List[Double]): List[String] = {
+      foldRight(ld, Nil: List[String])((h, t) => Cons(h.toString, t))
+    }
+   
+    def map[A, B](as: List[A])(f: A => B): List[B] = {
+      foldRight(as, Nil: List[B])((h, t) => Cons(f(h), t))
+    }
+
+    def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] = {
+      foldRight(as, Nil: List[B])((h, t) => append(f(h), t))
+    }
+
+    def filter[A](as: List[A])(f: A => Boolean): List[A] = {
+      //foldRight(as, Nil: List[A])((h, t) => if (f(h)) Cons(h, t) else t)
+      flatMap(as)(a => if (f(a)) Cons(a, Nil) else Nil)
+    }
+
+    def addLists(l1: List[Int], l2: List[Int]): List[Int] = l1 match {
+      case Nil => Nil
+      case Cons(h1, t1) => l2 match {
+        case Nil => Nil
+        case Cons(h2, t2) => Cons(h1 + h2, addLists(t1, t2))
+      }
+      
+    }
+
+    def zipWith[A](l1: List[A], l2: List[A])(f: (A, A) => A): List[A] = (l1, l2) match {
+      case (Nil, _) => Nil
+      case (_, Nil) => Nil
+      case (Cons(h1, t1), Cons(h2, t2)) => Cons(f(h1, h2), zipWith(t1, t2)(f))
+    }
+    
+
+    //def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = sub match {
+      
+    //}
+
   }
 
 
@@ -144,7 +188,14 @@ object Chapter3 {
     println(List.reverse(List(1, 2, 3)))
     println(List.sumFoldRightLeft(List(1, 2, 3)))
     println(List.sumFoldLeftRight(List(1, 2, 3)))
-    println(List.appendFR(List(1, 2, 3), List(4, 5)))
-    println(List.appendFL(List(1, 2, 3), List(4, 5)))
+    println(List.append(List(1, 2, 3), List(4, 5)))
+    println(List.concat(List(List(1, 2), List(3, 4), List(4, 5))))
+    println(List.addOne(List(1, 2, 3)))
+    println(List.stringify(List(1.0, 2.0, 3.0)))
+    println(List.map(List(1, 2, 3))(i => i.toDouble))
+    println(List.filter(List(1, 2, 3, 4, 5))(i => i%2 == 0))
+    println(List.flatMap(List(1, 2, 3))(i => List(i, i)))
+    println(List.addLists(List(1, 2, 3), List(4, 5, 6)))
+    println(List.zipWith(List(1, 2, 3), List(4, 5, 6))((i, j) => i - j))
   }
 }
