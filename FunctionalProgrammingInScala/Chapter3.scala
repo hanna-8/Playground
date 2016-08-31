@@ -162,10 +162,18 @@ object Chapter3 {
       case (Cons(h1, t1), Cons(h2, t2)) => Cons(f(h1, h2), zipWith(t1, t2)(f))
     }
     
+    def startsWith[A](whole: List[A], start: List[A]): Boolean = {
+      true
+    }
 
-    //def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = sub match {
-      
-    //}
+    def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = (sup, sub) match {
+      case (Nil, _) => false
+      case (_, Nil) => true
+      case (Cons(_, tp), _) => {
+        if (startsWith(sup, sub)) true 
+        else hasSubsequence(tp, sub)
+      }
+    }
 
   }
 
