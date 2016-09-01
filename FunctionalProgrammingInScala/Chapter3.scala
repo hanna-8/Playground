@@ -162,8 +162,10 @@ object Chapter3 {
       case (Cons(h1, t1), Cons(h2, t2)) => Cons(f(h1, h2), zipWith(t1, t2)(f))
     }
     
-    def startsWith[A](whole: List[A], start: List[A]): Boolean = {
-      true
+    def startsWith[A](big: List[A], small: List[A]): Boolean = (big, small) match {
+      case (_, Nil) => true
+      case (Nil, _) => false
+      case (Cons(h1, t1), Cons(h2, t2)) => if (h1 == h2) startsWith(t1, t2) else false
     }
 
     def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = (sup, sub) match {
@@ -174,13 +176,60 @@ object Chapter3 {
         else hasSubsequence(tp, sub)
       }
     }
+  }
 
+  sealed trait Tree[+A]
+  case class Leaf[A](value: A) extends Tree[A]
+  case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
+
+  object Tree {
+
+    def size[A](t: Tree[A]): Int = t match {
+      case Leaf(a) => 1
+      case Branch(l, r) => 1 + size(l) + size(r)
+    }
+
+    def maxTree(t: Tree[Int]): Int = t match {
+      case Leaf(a) => a
+      case Branch(l, r) => maxTree(l) max maxTree(r)
+    }
+
+    def depth[A](t: Tree[A]): Int = t match {
+      case Leaf(a) => 0
+      case Branch(l, r) => 1 + (depth(l) max depth(r))
+    }
+
+    def map[A, B](t: Tree[A])(f: A => B): Tree[B] = t match {
+      case Leaf(a) => Leaf(f(a))
+      case Branch(l, r) => Branch(map(l)(f), map(r)(f))
+    }
+
+    def fold[A, B](t: Tree[A])(lf: A => B)(bf: (B, B) => B): B = t match {
+      case Leaf(a) => lf(a)
+      case Branch(l, r) => bf(fold(l)(lf)(bf), fold(r)(lf)(bf))
+    }
+
+    def sizeF[A](t: Tree[A]): Int = {
+      fold(t)(_ => 1)((a, b) => a + b + 1)
+    }
+    
+    def maxTreeF(t: Tree[Int]): Int = {
+      fold(t)(a => a)((x, y) => (x max y))
+    }
+  
+    def mapF[A, B](t: Tree[A])(f: A => B): Tree[B] = {
+      fold(t)(a => Leaf(f(a)): Tree[B])((x, y) => Branch(x, y))
+    }
+
+    def depthF[A](t: Tree[A]): Int = {
+      fold(t)(_ => 0)((a, b) => (a max b) + 1)
+    }
   }
 
 
 
   def main(args: Array[String]): Unit = {
-    println("3.1. => 3")
+    println("3's a magic number")
     println(List.tail(List("A", "B", "C")))
     println(List.setHead(List("A", "B", "C"), "D"))
     println(List.drop(List(1, 2, 3, 4, 5), 2))
@@ -205,5 +254,15 @@ object Chapter3 {
     println(List.flatMap(List(1, 2, 3))(i => List(i, i)))
     println(List.addLists(List(1, 2, 3), List(4, 5, 6)))
     println(List.zipWith(List(1, 2, 3), List(4, 5, 6))((i, j) => i - j))
+    println(List.startsWith(List(1, 2, 3), List(1, 2, 3)))
+    println(List.hasSubsequence(List(1, 2, 4, 2, 3, 5), List(2, 3)))
+    println(Tree.size(Branch(Branch(Leaf("a"), Leaf("b")), Branch(Leaf("c"), Leaf("d")))))
+    println(Tree.maxTree(Branch(Branch(Leaf(3), Leaf(2)), Branch(Leaf(4), Leaf(1)))))
+    println(Tree.map(Branch(Branch(Leaf(3), Leaf(2)), Branch(Leaf(4), Leaf(1))))(i => i + 1))
+    println(Tree.depth(Branch(Branch(Leaf(3), Leaf(2)), Branch(Branch(Leaf(4), Leaf(5)), Leaf(1)))))
+    println(Tree.sizeF(Branch(Branch(Leaf("a"), Leaf("b")), Branch(Leaf("c"), Leaf("d")))))
+    println(Tree.maxTreeF(Branch(Branch(Leaf(3), Leaf(2)), Branch(Leaf(4), Leaf(1)))))
+    println(Tree.mapF(Branch(Branch(Leaf(3), Leaf(2)), Branch(Leaf(4), Leaf(1))))(i => i + 1))
+    println(Tree.depthF(Branch(Branch(Leaf(3), Leaf(2)), Branch(Branch(Leaf(4), Leaf(5)), Leaf(1)))))
   }
 }
