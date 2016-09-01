@@ -1,0 +1,41 @@
+
+http://typelevel.org/blog/2016/08/21/hkts-moving-forward.html
+
+1:
+
+•	Why Functional Programming Matters
+https://www.cs.kent.ac.uk/people/staff/dat/miranda/whyfp90.pdf
+
+•	Erlang Factroy SF 2016 - Keynote - John Hughes - Why Functional Programming Matters
+https://www.youtube.com/watch?v=Z35Tt87pIpg
+
+•	Out of the tar pit
+https://github.com/papers-we-love/papers-we-love/blob/master/design/out-of-the-tar-pit.pdf?raw=true 
+
+
+2:
+
+•	JVM internals – Stack
+http://blog.jamesdbloom.com/JVMInternals.html#stack 
+
+•	On Understanding Types, Data Abstraction, and Polymorphism
+http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.117.695 
+
+
+3:
+
+•	Persistent data structures
+https://en.wikipedia.org/wiki/Persistent_data_structure 
+
+•	Persistent data structures
+http://stackoverflow.com/questions/3107151/persistent-data-structures-in-scala  
+
+•	Purely Functional Data Structures
+https://www.amazon.com/Purely-Functional-Structures-Chris-Okasaki/dp/0521663504
+
+•	Ten Years of Purely Functional Data Structures
+http://okasaki.blogspot.ro/2008/02/ten-years-of-purely-functional-data.html
+
+•	On Understanding Data Abstraction, Revisited
+http://www.cs.utexas.edu/~wcook/Drafts/2009/essay.pdf 
+
