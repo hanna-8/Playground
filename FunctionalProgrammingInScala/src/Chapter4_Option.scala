@@ -1,6 +1,6 @@
 import scala.annotation.tailrec
 
-object Chapter4 {
+object Chapter4_Option {
 
   sealed trait Option[+A] {
     def map[B](f: A => B): Option[B] = this match {
@@ -28,6 +28,13 @@ object Chapter4 {
 
   case class Some[+A](get: A) extends Option[A]
   case object None extends Option[Nothing]
+
+
+  sealed trait Either[+E, +A]
+
+  case class Left[+E](value: E) extends Either[E, Nothing]
+  case class Right[+A](value: A) extends Either[Nothing, A]
+
 
 
   def mean(xs: Seq[Double]): Option[Double] =
