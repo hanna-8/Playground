@@ -1,0 +1,42 @@
+# Compiled Object files
+*.slo
+*.suo
+*.ncb
+*.lo
+*.o
+*.obj
+*.user
+*.ilk
+*.pdb
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Folders
+Binaries/
+GeneratedFiles/
+Win32/
+Temp/
+out/
