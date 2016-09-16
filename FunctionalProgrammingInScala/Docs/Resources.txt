@@ -1,6 +1,4 @@
 
-http://typelevel.org/blog/2016/08/21/hkts-moving-forward.html
-
 1:
 
 •	Why Functional Programming Matters
@@ -38,4 +36,7 @@ http://okasaki.blogspot.ro/2008/02/ten-years-of-purely-functional-data.html
 
 •	On Understanding Data Abstraction, Revisited
 http://www.cs.utexas.edu/~wcook/Drafts/2009/essay.pdf 
+
+
+http://typelevel.org/blog/2016/08/21/hkts-moving-forward.html
 

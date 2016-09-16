@@ -150,7 +150,7 @@ object Chapter5_LazyStream {
       }
     }
 
-    def startsWith(part: Stream[A]): Boolean = {
+    def startsWith[B >: A](part: Stream[B]): Boolean = {
       this.zipAll(part).forAll {
         case (_, None) => true
         case (Some(a), Some(b)) => a == b
@@ -165,8 +165,18 @@ object Chapter5_LazyStream {
       }.append(Stream(Empty))
     }
 
-    def hasSubsequence(sub: Stream[A]): Boolean = {
+    def hasSubsequence[B >: A](sub: Stream[B]): Boolean = {
       this.tails.filter(s => s.startsWith(sub)).take(1).headOption != None
+    }
+
+    def scanRight[B](z: B)(f: (A, => B) => B): Stream[B] = {
+      foldRight((z, Stream(z))) (
+        (a, p) => {
+          lazy val p1 = p
+          val z1 = f(a, p1._1)
+          (z1, Stream.cons(z1, p._2))
+        }
+      )._2
     }
   }
 
@@ -224,24 +234,6 @@ object Chapter5_LazyStream {
     println(toListExt(Stream(1, 2, 3).tails))
     println(Stream(1, 2, 3, 4, 5).hasSubsequence(Stream(3, 4)))
     println(Stream(1, 2, 3, 4, 5).hasSubsequence(Stream(2, 4)))
+    println(Stream(1,2,3).scanRight(0)(_ + _).toList)
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
