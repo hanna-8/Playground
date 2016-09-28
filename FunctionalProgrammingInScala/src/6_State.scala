@@ -32,16 +32,9 @@ object Chapter6_State {
       flatMap(a => State.unit(f(a)))
     }
 
-    def map2[B, C](sb: State[S, B])(f: (A, B) => C): State[S, C] = {
-      flatMap(a => (sb.map(b => f(a, b))))
-    }
+    def map2[B, C](sb: State[S, B])(f: (A, B) => C): State[S, C] = flatMap(a => (sb.map(b => f(a, b))))
   }
 
-  def zipIndex[A](as: List[A]): List[(Int, A)] = {
-    as.foldLeft[List[(Int, A)]](List[(Int, A)]())(
-      (acc, a) => acc.flatMap()
-    )
-  }
 
   sealed trait Input
   case object Coin extends Input
@@ -82,6 +75,6 @@ object Chapter6_State {
     //val m = Machine(true, 5, 10)
     //val (coins, candies) = simulateMachine(List(Coin, Knob, Coin, Knob, Coin, Knob, Coin, Knob)).run(m)
     //println("coins: " + coins + "; candies: " + candies)
-    println(zipIndex(List('a', 'b', 'c')))
+    //println(State.zipIndex(List('a', 'b', 'c')))
   }
 }
