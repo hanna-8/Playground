@@ -41,7 +41,7 @@ object MiscTests {
     println(State.zipIndex(List('a', 'b', 'c')))
     val l = List('a', 'b', 'c')
     println(l.foldRight(List[Char]())(_ :: _))
-    println(l.foldLeft(List[Char]())((acc, c) => c :: acc))
+    println(l.foldLeft(List[Char]())((acc, c) => acc ++ List(c)))
 //    println(State.zipIndex(List.fill(100000)('a')))
   }
 }
