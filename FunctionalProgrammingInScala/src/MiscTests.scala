@@ -39,9 +39,9 @@ object MiscTests {
 
   def main(args: Array[String]) : Unit = {
     println(State.zipIndex(List('a', 'b', 'c')))
-    val l = List('a', 'b', 'c')
-    println(l.foldRight(List[Char]())(_ :: _))
+    val l = List({println('a'); 'a'}, {println('b'); 'b'}, {println('c'); 'c'})
+    println(l.foldRight(List[Char]())(_ :: _) + " alabala ")
     println(l.foldLeft(List[Char]())((acc, c) => acc ++ List(c)))
-//    println(State.zipIndex(List.fill(100000)('a')))
+    println(State.zipIndex(List.fill(100000)('a')))
   }
 }

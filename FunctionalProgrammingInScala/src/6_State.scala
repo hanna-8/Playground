@@ -1,148 +1,128 @@
-//object Chapter6_State {
-//
-//  object State {
-//    def unit[S, A](a: A): State[S, A] = State(s => (a, s))
-//
-//    def sequence[S, A, B](l: List[State[S, A]]): State[S, List[A]] = {
-//      l.foldRight(State.unit[S, List[A]](List[A]()))((s, acc) => s.map2(acc)(_ :: _))
-//    }
-//
-//    def get[S]: State[S, S] = State(s => (s, s))
-//
-//    def set[S](s: S): State[S, Unit] = State(_ => ((), s))
-//
-//    def modify[S](f: S => S): State[S, Unit] = for {
-//      s <- get
-//      _ <- set(f(s))
-//    } yield()
-//  }
-//
-//
-//  case class State[S, +A](run: S => (A, S)) {
-//
-//    def flatMap[B](g: A => State[S, B]): State[S, B] = State(s => {
-//      val (a, s1) = run(s)
-//      g(a).run(s1)
-//    })
-//
-//    def map[B](f: A => B): State[S, B] = {
-//      flatMap(a => State.unit(f(a)))
-//    }
-//
-//    def map2[B, C](sb: State[S, B])(f: (A, B) => C): State[S, C] = for {
-//      a <- this
-//      b <- sb
-//    } yield(f(a, b)) // flatMap(a => (sb.map(b => f(a, b))))
-//  }
-//
-//
-//  sealed trait Input
-//  case object Coin extends Input
-//  case object Knob extends Input
-//
-//  def updateMachine(i: Input): State[Machine, (Int, Int)] = State(m => {
-//    (i, m.locked, m.candies, m.coins) match {
-//      case (Coin, true, cand, coin) if (cand > 1) => ((cand, coin + 1), Machine(false, cand, coin + 1))
-//      case (Knob, false, cand, coin) if (cand > 1) => ((cand - 1, coin), Machine(true, cand - 1, coin))
-//      case _ => ((m.candies, m.coins), m)
-//    }})
-//
-////  def insertCoin(m: Machine): Machine = (m.locked, m.candies, m.coins) match {
-////    case (true, candies, coins) if (candies > 1) => Machine(false, candies, coins + 1)
-////    case _ => m
-////  }
-////
-////  def turnKnob(m: Machine): Machine = (m.locked, m.candies, m.coins) match {
-////    case (false, candies, coins) if (candies > 1) => Machine(true, candies - 1, coins)
-////    case _ => m
-////  }
-//
-//  def dummyUpdate(i: Input, m: Machine): Machine = (i, m.locked, m.candies, m.coins) match {
-//    case (Coin, true, candies, coins) if (candies > 1) => Machine(false, candies, coins + 1)
-//    case (Knob, false, candies, coins) if (candies > 1) => Machine(true, candies - 1, coins)
-//    case _ => m
-//  }
-//
-//  case class Machine(locked: Boolean, candies: Int, coins: Int)
-//
-//
-//
-//  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = inputs match {
-//    case h :: t => {
+object Chapter6_State {
+
+  object State {
+    def unit[S, A](a: A): State[S, A] = State(s => (a, s))
+
+    def sequence[S, A, B](l: List[State[S, A]]): State[S, List[A]] = {
+      l.foldRight(State.unit[S, List[A]](List[A]()))((s, acc) => s.map2(acc)(_ :: _))
+    }
+
+    def get[S]: State[S, S] = State(s => (s, s))
+
+    def set[S](s: S): State[S, Unit] = State(_ => ((), s))
+
+    def modify[S](f: S => S): State[S, Unit] = for {
+      s <- get
+      _ <- set(f(s))
+    } yield()
+  }
+
+
+  case class State[S, +A](run: S => (A, S)) {
+
+    def flatMap[B](g: A => State[S, B]): State[S, B] = State(s => {
+      val (a, s1) = run(s)
+      g(a).run(s1)
+    })
+
+    def map[B](f: A => B): State[S, B] = {
+      flatMap(a => State.unit(f(a)))
+    }
+
+    def map2[B, C](sb: State[S, B])(f: (A, B) => C): State[S, C] = for {
+      a <- this
+      b <- sb
+    } yield(f(a, b)) // flatMap(a => (sb.map(b => f(a, b))))
+  }
+
+
+  sealed trait Input
+  case object Coin extends Input
+  case object Knob extends Input
+
+  case class Machine(locked: Boolean, candies: Int, coins: Int)
+
+  def modifyMachine(i: Input)(m: Machine): Machine = {
+    (i, m.locked, m.candies, m.coins) match {
+      case (Coin, true, cand, coin) if (cand > 1) => Machine(false, cand, coin + 1)
+      case (Knob, false, cand, coin) if (cand > 1) => Machine(true, cand - 1, coin)
+      case _ => m
+    }}
+
+  def updateMachine_v0(i: Input): State[Machine, (Int, Int)] = State(m => {
+    (i, m.locked, m.candies, m.coins) match {
+      case (Coin, true, cand, coin) if (cand > 1) => ((cand, coin + 1), Machine(false, cand, coin + 1))
+      case (Knob, false, cand, coin) if (cand > 1) => ((cand - 1, coin), Machine(true, cand - 1, coin))
+      case _ => ((m.candies, m.coins), m)
+    }})
+
+
+  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = inputs match {
+    case h :: t => {
+      for {
+        _ <- State.modify(modifyMachine(h))
+        m1 <- simulateMachine(t)
+      } yield (m1)
+    }
+    case Nil => State(m => ((m.candies, m.coins), m))
+  }
+
 //      for {
-//        m1 <- simulateMachine(t)
-//        m2 <- updateMachine(h)
-//      } yield (m2._1.candies, m2._1.coins)
+//      _ <- State.modify(if (h == Coin) insertCoin else turnKnob)
+//      m1 <- State.get
+//    } yield(m1.candies, m1.coins)
+//
+    //case Nil =>
+
+
+
+//  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] =
+//    inputs map (i => {
+//      for {
+//        //m <- State.get
+//        //_ <- State.set(if (i == Coin) insertCoin(m) else turnKnob(m))
+//        //m2 <- State.get
+//        _ <- State.modify(if (i == Coin) insertCoin else turnKnob)
+//        m1 <- State.get
+//      } yield(m1.s, m1.c) }) last
+
+//  def updateMachine(m: Machine, i: Input): Machine = (m, i) match {
+//    case (m, _) if (m.s < 1) => m
+//    case (m, Coin) if (m.l == true) => Machine(false, m.s, m.c + 1)
+//    case (m, Knob) if (m.l == false) => Machine(true, m.s - 1, m.c)
+//  }
+
+
+
+//
+//    (m: Machine) => {
+//    def go(ins: List[Input], acc: State[Machine, (Int, Int)]): State[Machine, (Int, Int)] = {
+//      ins match {
+//        case empty => acc
+//        case h::t => h match {
+//          case Coin => go(t, acc.modify(Machine.insertCoin))
+//          case Knob => go(t, acc map turnKnob)
+//        }
+//      }
 //    }
-//    case Nil => State(m => ((m.candies, m.coins), m))
+//
+//    go(inputs, State.unit(true, 5, 10))
 //  }
+
+  def main(args: Array[String]) : Unit = {
+    val m1 = Machine(true, 5, 10)
+    val (coins, candies) = simulateMachine(List(Coin, Knob, Coin, Knob, Coin, Knob, Coin, Knob)).run(m1)._1
+    println("coins: " + coins + "; candies: " + candies)
+
+    //    val (coins1, candies1) = simulateMachine(List(Coin)).run(m1)._1
+//    println("coins: " + coins1 + "; candies: " + candies1)
 //
-//  def simulateMachine_v0(inputs: List[Input]): State[Machine, (Int, Int)] = inputs match {
-//    case h :: t => State(m => {
-//      val m1 = dummyUpdate(h, m)
-//      println("coin. (" + m1.candies + " " + m1.coins + ")")
-//      simulateMachine(t).run(m1)
-//    })
-//    case Nil => State(m => ((m.candies, m.coins), m))
-//  }
+//    val m2 = Machine(true, 5, 10)
+//    val (coins2, candies2) = simulateMachine(List(Coin, Knob)).run(m2)._1
+//    println("coins: " + coins2 + "; candies: " + candies2)
 //
-//
-////      for {
-////      _ <- State.modify(if (h == Coin) insertCoin else turnKnob)
-////      m1 <- State.get
-////    } yield(m1.candies, m1.coins)
-////
-//    //case Nil =>
-//
-//
-//
-////  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] =
-////    inputs map (i => {
-////      for {
-////        //m <- State.get
-////        //_ <- State.set(if (i == Coin) insertCoin(m) else turnKnob(m))
-////        //m2 <- State.get
-////        _ <- State.modify(if (i == Coin) insertCoin else turnKnob)
-////        m1 <- State.get
-////      } yield(m1.s, m1.c) }) last
-//
-////  def updateMachine(m: Machine, i: Input): Machine = (m, i) match {
-////    case (m, _) if (m.s < 1) => m
-////    case (m, Coin) if (m.l == true) => Machine(false, m.s, m.c + 1)
-////    case (m, Knob) if (m.l == false) => Machine(true, m.s - 1, m.c)
-////  }
-//
-//
-//
-////
-////    (m: Machine) => {
-////    def go(ins: List[Input], acc: State[Machine, (Int, Int)]): State[Machine, (Int, Int)] = {
-////      ins match {
-////        case empty => acc
-////        case h::t => h match {
-////          case Coin => go(t, acc.modify(Machine.insertCoin))
-////          case Knob => go(t, acc map turnKnob)
-////        }
-////      }
-////    }
-////
-////    go(inputs, State.unit(true, 5, 10))
-////  }
-//
-//  def main(args: Array[String]) : Unit = {
-//    val m1 = Machine(true, 5, 10)
-//    val (coins, candies) = simulateMachine(List(Coin, Knob, Coin, Knob, Coin, Knob, Coin, Knob)).run(m1)._1
+//    val m = Machine(true, 5, 10)
+//    val (coins, candies) = simulateMachine(List(Coin, Knob, Coin)).run(m)._1
 //    println("coins: " + coins + "; candies: " + candies)
-//
-//    //    val (coins1, candies1) = simulateMachine(List(Coin)).run(m1)._1
-////    println("coins: " + coins1 + "; candies: " + candies1)
-////
-////    val m2 = Machine(true, 5, 10)
-////    val (coins2, candies2) = simulateMachine(List(Coin, Knob)).run(m2)._1
-////    println("coins: " + coins2 + "; candies: " + candies2)
-////
-////    val m = Machine(true, 5, 10)
-////    val (coins, candies) = simulateMachine(List(Coin, Knob, Coin)).run(m)._1
-////    println("coins: " + coins + "; candies: " + candies)
-//  }
-//}
+  }
+}
