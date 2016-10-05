@@ -67,62 +67,10 @@ object Chapter6_State {
     case Nil => State(m => ((m.candies, m.coins), m))
   }
 
-//      for {
-//      _ <- State.modify(if (h == Coin) insertCoin else turnKnob)
-//      m1 <- State.get
-//    } yield(m1.candies, m1.coins)
-//
-    //case Nil =>
-
-
-
-//  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] =
-//    inputs map (i => {
-//      for {
-//        //m <- State.get
-//        //_ <- State.set(if (i == Coin) insertCoin(m) else turnKnob(m))
-//        //m2 <- State.get
-//        _ <- State.modify(if (i == Coin) insertCoin else turnKnob)
-//        m1 <- State.get
-//      } yield(m1.s, m1.c) }) last
-
-//  def updateMachine(m: Machine, i: Input): Machine = (m, i) match {
-//    case (m, _) if (m.s < 1) => m
-//    case (m, Coin) if (m.l == true) => Machine(false, m.s, m.c + 1)
-//    case (m, Knob) if (m.l == false) => Machine(true, m.s - 1, m.c)
-//  }
-
-
-
-//
-//    (m: Machine) => {
-//    def go(ins: List[Input], acc: State[Machine, (Int, Int)]): State[Machine, (Int, Int)] = {
-//      ins match {
-//        case empty => acc
-//        case h::t => h match {
-//          case Coin => go(t, acc.modify(Machine.insertCoin))
-//          case Knob => go(t, acc map turnKnob)
-//        }
-//      }
-//    }
-//
-//    go(inputs, State.unit(true, 5, 10))
-//  }
-
   def main(args: Array[String]) : Unit = {
     val m1 = Machine(true, 5, 10)
     val (coins, candies) = simulateMachine(List(Coin, Knob, Coin, Knob, Coin, Knob, Coin, Knob)).run(m1)._1
     println("coins: " + coins + "; candies: " + candies)
 
-    //    val (coins1, candies1) = simulateMachine(List(Coin)).run(m1)._1
-//    println("coins: " + coins1 + "; candies: " + candies1)
-//
-//    val m2 = Machine(true, 5, 10)
-//    val (coins2, candies2) = simulateMachine(List(Coin, Knob)).run(m2)._1
-//    println("coins: " + coins2 + "; candies: " + candies2)
-//
-//    val m = Machine(true, 5, 10)
-//    val (coins, candies) = simulateMachine(List(Coin, Knob, Coin)).run(m)._1
-//    println("coins: " + coins + "; candies: " + candies)
   }
 }
