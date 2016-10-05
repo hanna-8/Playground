@@ -40,3 +40,5 @@ GeneratedFiles/
 Win32/
 Temp/
 out/
+**/.idea/workspace.xml
+**/.idea/tasks.xml
