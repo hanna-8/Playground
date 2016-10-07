@@ -1,3 +1,4 @@
 # playground
 
-Small "hello world"-ish projects.
+Small "hello world"-ish projects &&
+miscellaneous other tests.
