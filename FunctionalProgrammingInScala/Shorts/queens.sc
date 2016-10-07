@@ -1,3 +1,6 @@
+// Problem:
+// Place n queens on an n x n chess board so that no two queens threaten each other.
+
 // Trim the remaining valid positions after placing
 // a new queen on the new position np.
 // I.e. remove from vp those positions what would attack np:
