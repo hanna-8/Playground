@@ -1,5 +1,6 @@
 import scala.annotation.tailrec
 
+
 object StateStuff {
 
   case class State[S, +A] (runS: S => (A, S)) {
@@ -59,10 +60,10 @@ object StateStuff {
 }
 
 
-object CoNtraVariance {
-  case class Foo[+A]() {
-    def bar[B >: A](a: B) = ??? // Works
-    //def badBar(a: A) = ???  // Does not work
+object Variance {
+  case class Caretaker[+A]() {
+    //def feed(p: A) = ??? // Ka-Boom
+    //def feed[B >: A](p: B) = ??? // Fixed
   }
 }
 
@@ -93,8 +94,35 @@ object Queens {
   }
 
   def put(n: Int): List[List[(Int, Int)]] = {
-    val all = (for {a <- (0 to (n - 1)); b <- (0 to (n - 1))} yield (a, b)).toStream
+    val all = (for {
+      a <- (0 to (n - 1));
+      b <- (0 to (n - 1))
+    } yield (a, b)).toStream
     toListExt(place(0, Stream[(Int, Int)](), all, n))
+  }
+}
+
+
+object P90 {
+
+  def eightQueens = {
+
+    def validDiagonals(qs: List[Int], upper: Int, lower: Int): Boolean = qs match {
+      case Nil => true
+      case q :: tail => q != upper && q != lower && validDiagonals(tail, upper + 1, lower - 1)
+    }
+
+    def valid(qs: List[Int]): Boolean = qs match {
+      case Nil => true
+      case q :: tail => validDiagonals(tail, q + 1, q - 1)
+    }
+
+    def eightQueensR(curQueens: List[Int], remainingCols: Set[Int]): List[List[Int]] =
+      if (!valid(curQueens)) Nil
+      else if (remainingCols.isEmpty) List(curQueens)
+      else remainingCols.toList.flatMap(c => eightQueensR(c :: curQueens, remainingCols - c))
+
+    eightQueensR(Nil, Set() ++ (1 to 5))
   }
 }
 
@@ -103,6 +131,6 @@ object MiscTests {
 
   def main(args: Array[String]) : Unit = {
     println(Queens.put(4))
-    //println(CoNtraVariance.Foo)
+    //println(P90.eightQueens)
   }
 }
