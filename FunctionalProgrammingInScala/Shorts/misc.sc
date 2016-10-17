@@ -1,21 +1,18 @@
-import scala.Option
+import scala.concurrent
 
-sealed trait Par[A] {
-  def unit[A](a: => A): Par[A] = ???
-  def get[A](a:Par[A]): A = ???
+def sum_0(l: Seq[Int]): Int =
+  l.foldLeft(0)((i, acc) => i + acc)
 
-}
-
-object Par {
-  def map2[A, B, C](p1: Par[A], p2: Par[B])(f: (A, B) => C): Par[C] = ???
-}
-
-def sum(ints: IndexedSeq[Int]): Int =
-  if (ints.size <= 1)
-    ints headOption getOrElse 0
+def sum(ints: IndexedSeq[Int]): Int = {
+  print(ints.headOption.getOrElse(0) + " ")
+  if (ints.size <= 1) ints.headOption.getOrElse(0)
   else {
     val (l, r) = ints.splitAt(ints.length / 2)
-    val sumL: Par[Int] = Par.unit(sum(l))
-    val sumR: Par[Int] = Par.unit(sum(r))
-    Par.get(sumL) + Par.get(sumR)
+    sum(l) + sum(r)
   }
+}
+
+val s = IndexedSeq(1, 2, 3, 4, 5)
+sum(s)
+s.splitAt(s.length / 2)._1
+
