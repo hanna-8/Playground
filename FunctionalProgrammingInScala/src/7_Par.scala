@@ -1,4 +1,6 @@
+import java.util.Calendar
 import java.util.concurrent._
+import language.implicitConversions
 
 object Chapter7_Par {
 
@@ -7,7 +9,7 @@ object Chapter7_Par {
 
 
   object Par {
-    def unit[A](a: A): Par[A] = ((es: ExecutorService) => UnitFuture(a))
+    def unit[A](a: A): Par[A] = (es: ExecutorService) => UnitFuture(a)
 
     private case class UnitFuture[A](get: A) extends Future[A] {
       def isDone = true
@@ -36,21 +38,46 @@ object Chapter7_Par {
     def map[A, B](pa: Par[A])(f: A => B): Par[B] = map2(pa, unit(()))((a, _) => f(a))
 
     def sortPar(parList: Par[List[Int]]): Par[List[Int]] = map(parList)(_.sorted)
-
-    def parMap[A, B](ps: List[A])(f: A => B): Par[List[B]] = sequence(ps.map(asyncF(f)))
-
-    def sequence[A](lp: List[Par[A]]): Par[List[A]] = es => {
-      fork(lp.map(p => run(es)(p)))
-    }
-
-    def parFilter[A](as: List[A])(f: A => Boolean): Par[List[A]] = run(as.filter(f))
-
   }
 
 
+  implicit def toParOps[A](p: Par[A]): ParOps[A] = new ParOps(p)
+
+
+  class ParOps[A](p: Par[A]) {
+
+
+  }
+
+  def sum_v0(ints: IndexedSeq[Int]): Int =
+    if (ints.size <= 1)
+      ints.headOption getOrElse(0)
+    else {
+      val (l, r) = ints.splitAt(ints.size / 2)
+      sum_v0(l) + sum_v0(r)
+    }
+
+
+  def sum(ints: IndexedSeq[Int]): Par[Int] =
+    if (ints.size <= 1)
+      Par.unit(ints.headOption getOrElse(0))
+    else {
+      val (l, r) = ints.splitAt(ints.size / 2)
+      Par.map2(Par.fork(sum(l)), Par.fork(sum(r)))(_ + _)
+    }
 
 
   def main(args: Array[String]): Unit = {
-    println("fysw");
+    val pool = Executors.newWorkStealingPool()
+
+    val t1 = Calendar.getInstance().get(Calendar.MILLISECOND)
+    println(Par.run(pool)(sum(IndexedSeq.range(1, 100))))
+
+    val t2 = Calendar.getInstance().get(Calendar.MILLISECOND)
+    println(sum_v0(IndexedSeq.range(1, 100)))
+
+    val t3 = Calendar.getInstance().get(Calendar.MILLISECOND)
+
+    println((t2 - t1) + " vs. " + (t3 - t2))
   }
 }
