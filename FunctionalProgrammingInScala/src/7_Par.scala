@@ -45,9 +45,9 @@ object Chapter7_Par {
 
 
   class ParOps[A](p: Par[A]) {
-
-
+    def map2[B, C](pb: Par[B])(f: (A, B) => C): Par[C] = Par.map2(p, pb)(f)
   }
+
 
   def sum_v0(ints: IndexedSeq[Int]): Int =
     if (ints.size <= 1)
@@ -57,13 +57,21 @@ object Chapter7_Par {
       sum_v0(l) + sum_v0(r)
     }
 
+  def sum_v1(ints: IndexedSeq[Int]): Par[Int] =
+    if (ints.size <= 1)
+      Par.unit(ints.headOption getOrElse(0))
+    else {
+      val (l, r) = ints.splitAt(ints.size / 2)
+      Par.map2(Par.fork(sum_v1(l)), Par.fork(sum_v1(r)))(_ + _)
+    }
 
+  // Using implicit conversions
   def sum(ints: IndexedSeq[Int]): Par[Int] =
     if (ints.size <= 1)
       Par.unit(ints.headOption getOrElse(0))
     else {
       val (l, r) = ints.splitAt(ints.size / 2)
-      Par.map2(Par.fork(sum(l)), Par.fork(sum(r)))(_ + _)
+      Par.fork(sum_v1(l)).map2(Par.fork(sum_v1(r)))(_ + _)
     }
 
 
