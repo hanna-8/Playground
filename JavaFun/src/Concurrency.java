@@ -1,10 +1,13 @@
+// Examples from
+// http://winterbe.com/posts/2015/04/07/java8-concurrency-tutorial-thread-executor-examples/
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
 public class Concurrency {
 
-    public static void test0() {
+    private static void test0() {
         Runnable task = () -> {
             String threadName = Thread.currentThread().getName();
             System.out.println("Hello " + threadName);
@@ -18,7 +21,7 @@ public class Concurrency {
         System.out.println("Done!");
     }
 
-    public static void sleepy() {
+    private static void sleepy() {
         Runnable runnable = () -> {
             try {
                 String name = Thread.currentThread().getName();
@@ -53,7 +56,7 @@ public class Concurrency {
         }
     }
 
-    public static void executors() {
+    private static void executors() {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
             String threadName = Thread.currentThread().getName();
@@ -63,7 +66,7 @@ public class Concurrency {
         shutDownExecutor(executor);
     }
 
-    public static void callables() {
+    private static void callables() {
         Callable<Integer> task = () -> {
             try {
                 TimeUnit.SECONDS.sleep(1);
@@ -95,13 +98,13 @@ public class Concurrency {
         System.out.print("result: " + result);
     }
 
-    public static void invokeAll() {
+    private static void invokeAll() {
         ExecutorService executor = Executors.newWorkStealingPool();
 
         List<Callable<String>> callables = Arrays.asList(
-                () -> "1st star",
-                () -> "2nd star",
-                () -> "3rd star");
+                () -> "1st str",
+                () -> "2nd str",
+                () -> "3rd str");
 
         try {
             executor.invokeAll(callables)
@@ -127,7 +130,7 @@ public class Concurrency {
         };
     }
 
-    static public void invokeAny() {
+    static private void invokeAny() {
         ExecutorService executor = Executors.newWorkStealingPool();
         // WHOA!
         // Instead of using a fixed size thread-pool ForkJoinPools are created for a given parallelism size
@@ -152,7 +155,7 @@ public class Concurrency {
         System.out.println(result);
     }
 
-    public static void scheduled() {
+    private static void scheduled() {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
         Runnable task = () -> System.out.println("Scheduling: " + System.nanoTime());
@@ -169,4 +172,15 @@ public class Concurrency {
         long remainingDelay = future.getDelay(TimeUnit.MILLISECONDS);
         System.out.printf("Remaining Delay: %sms", remainingDelay);
     }
+
+    public static void testConcurrency() {
+        Concurrency.test0();
+        Concurrency.sleepy();
+        Concurrency.executors();
+        Concurrency.callables();
+        Concurrency.invokeAll();
+        Concurrency.invokeAny();
+        Concurrency.scheduled();
+    }
+
 }
