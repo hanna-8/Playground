@@ -1,4 +1,4 @@
-case class Caretaker[+A]() {
-  //def feed(p: A) = ??? // Ka-Boom
-  def feed[B >: A](p: B) = ??? // Fixed
+case class Variance[+A]() {
+  //def aFunction(p: A) = ??? // Ka-Boom
+  def aFunction[B >: A](p: B) = ??? // Fixed
 }

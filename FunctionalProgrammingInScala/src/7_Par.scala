@@ -25,24 +25,38 @@ object Chapter7_Par {
         UnitFuture(f(af.get, bf.get))
       }
 
-    def fork[A](a: => Par[A]): Par[A] =
+    def fork[A](pa: => Par[A]): Par[A] =
       es => es.submit(new Callable[A] {
-        def call = a(es).get
+        def call = pa(es).get
       })
 
     def lazyUnit[A](a: => A): Par[A] = fork(unit(a))
-    def run[A](s: ExecutorService)(a: Par[A]) = a(s)
+    def run[A](s: ExecutorService)(a: Par[A]): Future[A] = a(s)
 
     def asyncF[A, B](f: A => B): A => Par[B] = a => lazyUnit(f(a))
 
     def map[A, B](pa: Par[A])(f: A => B): Par[B] = map2(pa, unit(()))((a, _) => f(a))
 
     def sortPar(parList: Par[List[Int]]): Par[List[Int]] = map(parList)(_.sorted)
+
+    def sequence[A](ps: List[Par[A]]): Par[List[A]] =
+      ps.foldRight[Par[List[A]]](Par.unit(List[A]()))((p, acc) => map2(p, acc)(_ :: _))
+
+    def parMap[A, B](ps: List[A])(f: A => B): Par[List[B]] = {
+      val fbs: List[Par[B]] = ps.map(asyncF(f))
+      sequence(fbs)
+    }
+//
+//    def parFilter[A](as: List[A])(f: A => Boolean): Par[List[A]] = {
+//      map(parMap(as)(asyncF[A, List[A]](a => if (f(a)) List(a) else List())))(_.flatten)
+//    }
   }
 
 
-  implicit def toParOps[A](p: Par[A]): ParOps[A] = new ParOps(p)
+  // Allow implicit conversion from Par to Par Operations,
+  // in order to use infix syntax like x.map2(y)(f)
 
+  implicit def toParOps[A](p: Par[A]): ParOps[A] = new ParOps(p)
 
   class ParOps[A](p: Par[A]) {
     def map2[B, C](pb: Par[B])(f: (A, B) => C): Par[C] = Par.map2(p, pb)(f)
@@ -87,5 +101,8 @@ object Chapter7_Par {
     val t3 = Calendar.getInstance().get(Calendar.MILLISECOND)
 
     println((t2 - t1) + " vs. " + (t3 - t2))
+
+    println(Par.run(pool)(Par.parMap((1 until 100).toList)((i: Int) => print(i + " "))))
+    //println(Par.run(pool)(Par.parFilter((1 until 100).toList)((i: Int) => i % 2 == 0)))
   }
 }
