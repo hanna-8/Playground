@@ -1,4 +1,9 @@
+package state
+
 object Chapter6_State {
+
+  /* State is short for computation that carries some state along, or state action, state transition,
+  or even statement */
 
   object State {
     def unit[S, A](a: A): State[S, A] = State(s => (a, s))

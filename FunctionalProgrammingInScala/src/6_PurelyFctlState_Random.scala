@@ -1,3 +1,5 @@
+package state
+
 import scala.annotation.tailrec
 
 object Chapter6_PurelyFunctionalState {
