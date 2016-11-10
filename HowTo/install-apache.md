@@ -15,11 +15,11 @@ To test it worked type 'http://localhost' into your browser. You should get a sc
 
 ---> Troubleshooting:
 Cmd:  
-`C:\Apache24\bin>httpd.exe -k start  
-(OS 10048)Only one usage of each socket address (protocol/network address/port)  
-is normally permitted.  : AH00072: make_sock: could not bind to address 0.0.0.0:80  
-AH00451: no listening sockets available, shutting down  
-AH00015: Unable to open logs`  
+`C:\Apache24\bin>httpd.exe -k start`  
+`(OS 10048)Only one usage of each socket address (protocol/network address/port)  
+is normally permitted.  : AH00072: make_sock: could not bind to address 0.0.0.0:80`  
+`AH00451: no listening sockets available, shutting down`  
+`AH00015: Unable to open logs`  
 
 Solution: 
 `C:\Apache24\bin>netstat -ano`  
