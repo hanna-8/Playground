@@ -22,7 +22,7 @@ AH00451: no listening sockets available, shutting down
 AH00015: Unable to open logs`  
 
 Solution: 
-`C:\Apache24\bin>netstat -ano  
+`C:\Apache24\bin>netstat -ano`  
 Find process that uses 0.0.0.0:80.  
 Kill it.  
-Retry.`  
+Retry.  
