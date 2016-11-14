@@ -75,13 +75,36 @@ object Chapter8_Test {
     }
 
     def && (p2: Prop): Prop = new Prop((count, random) => {
-      val c1 = check
-      if (c1 != Prop.Passed)
-        c1
-      else
-        p2.check
-    }
+       val ret = run(count, random)
+       println("\t\t &&1 " + ret)
+       ret match {
+         case Prop.Passed => {
+           val ret2 = p2.run(count, random)
+           println("\t\t &&2 " + ret2)
+           ret2 match {
+             case Prop.Failed(reason, c) => Prop.Failed(reason, c + count)
+             case p => p
+           }
+         }
+         case Prop.Failed(reason, c) => Prop.Failed(reason, count + c)
+       }
+    })
 
+    def || (p2: Prop): Prop = new Prop((count, random) => {
+      val ret = run(count, random)
+      println("\t\t ||1 " + ret)
+      ret match {
+        case Prop.Failed(reason1, c1) => {
+          val ret2 = p2.run(count, random)
+          println("\t\t ||2 " + ret2)
+          ret2 match {
+            case Prop.Failed(reason2, c2) => Prop.Failed(reason1 + " and " + reason2, c1 + c2)
+            case p => p
+          }
+        }
+        case p => p
+      }
+    })
   }
 
   def main(args: Array[String]): Unit = {
@@ -90,12 +113,19 @@ object Chapter8_Test {
     println(Gen.listOf(Gen.choose(1, 42)).get(r))
 
     val intList = Gen.listOf(Gen.choose(0,100))
-    val prop = Prop.forAll(intList)(ns => ns.reverse.reverse == ns)
-    val prop1 = Prop.forAll(intList)(ns => ns.size > 5)
+    val prop1 = Prop.forAll(intList)(ns => ns.reverse.reverse == ns)
+    val prop2 = Prop.forAll(intList)(ns => ns.size > 5)
+    val prop3 = prop1 && prop2
+    val prop4 = prop1 || prop2
+    val prop5 = prop1 && prop1
+    val prop6 = prop2 || prop2
 
-    println(prop.check)
-    println(prop1.check)
-//        forAll(intList)(ns => ns.headOption == ns.reverse.lastOption)
+    println("+ \t\t=> " + prop1.check)
+    println("- \t\t=> " + prop2.check)
+    println("+ && - \t=> " + prop3.check)
+    println("+ || - \t=> " + prop4.check)
+    println("+ && + \t=> " + prop5.check)
+    println("- || - \t=> " + prop6.check)
   }
 
 }
