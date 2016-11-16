@@ -3,13 +3,14 @@ import scala.util.Random
 
 object Chapter8_Test {
 
+  // Object for the generator of random elements of type A
   object Gen {
     def choose(start: Int, stopExclusive: Int): Gen[Int] =
       new Gen(r => r.nextInt(stopExclusive - start) + start)
 
-    def unit[A](a: => A): Gen[A] = new Gen(r => a)
+    def unit[A](a: => A): Gen[A] = Gen(r => a)
 
-    def boolean: Gen[Boolean] = new Gen(r => r.nextBoolean())
+    def boolean: Gen[Boolean] = Gen(r => r.nextBoolean())
 
     // List of max. 42 random elements of type A
     def listOf[A](g: Gen[A]): Gen[List[A]] = g.listOfN(Gen.choose(0, 42))
@@ -22,17 +23,28 @@ object Chapter8_Test {
   }
 
 
+  // Generator of random elements of type A
   case class Gen[A](get: Random => A) {
 
-    def listOfN(n: Int): Gen[List[A]] = new Gen(r => List.fill(n)(get(r)))
+    def listOfN(n: Int): Gen[List[A]] = Gen(r => List.fill(n)(get(r)))
 
-    def flatMap[B](f: A => Gen[B]): Gen[B] = new Gen(r => f(get(r)).get(r))
+    def flatMap[B](f: A => Gen[B]): Gen[B] = Gen(r => f(get(r)).get(r))
 
     def listOfN(size: Gen[Int]): Gen[List[A]] = size flatMap (n => listOfN(n))
   }
 
+//
+//  object SGen {
+//    def listOf[A](g: Gen[A]): SGen[List[A]] = SGen((n: Int) => g.listOfN(n))
+//  }
+
+//
+//  case class SGen[+A](forSize: Int => Gen[A]) {
+//
+//  }
 
 
+  // Object for the properties to be tested.
   object Prop {
 
     trait Result {
@@ -67,6 +79,8 @@ object Chapter8_Test {
 
   }
 
+
+  // Properties to be tested.
   case class Prop(run: (Prop.TestsCount, Random) => Prop.Result) {
     def check: Prop.Result = {
       val r: Random = new Random(42)
@@ -107,6 +121,8 @@ object Chapter8_Test {
     })
   }
 
+
+  // The one and only... main.
   def main(args: Array[String]): Unit = {
     //println(ForAll(5)((i:Int) => i % 2 == 0).check)
     val r: Random = new Random(42)
