@@ -3,4 +3,23 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
+
+    <servlet>
+        <servlet-name>Saluter</servlet-name>
+        <servlet-class>fwa.Saluter</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Querier</servlet-name>
+        <servlet-class>fwa.Querier</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Saluter</servlet-name>
+        <url-pattern>/Saluter</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Querier</servlet-name>
+        <url-pattern>/Querier</url-pattern>
+    </servlet-mapping>
+
 </web-app>

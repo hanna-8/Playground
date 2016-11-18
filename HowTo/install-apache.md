@@ -13,7 +13,8 @@
 
 To test it worked type 'http://localhost' into your browser. You should get a screen up to the effect that Apache is installed and working.
 
----> Troubleshooting:
+---  
+Troubleshooting:  
 Cmd:  
 `C:\Apache24\bin>httpd.exe -k start`  
 `(OS 10048)Only one usage of each socket address (protocol/network address/port)  
