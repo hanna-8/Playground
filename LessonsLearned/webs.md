@@ -8,9 +8,9 @@ Tutorials:
 Alternatives:
   * [Apache](https://httpd.apache.org/): 
   > Secure, efficient & extensible server that provides HTTP services.  
-  **But** not at all friendly with Java dynamic content: need to wrap Java code into (Perl) scripts in order to add them to the Apache server:
+**But** not at all friendly with Java dynamic content: need to wrap Java code into (Perl) scripts in order to add them to the Apache server:
   > "What apache is used for is for either a) providing static content (images, sounds, etc.) and b) load balancing, since it is faster than Tomcat. But this is done in coordination with the Tomcat that serves the java-generated content."  
-  (from [StackOverflow](http://stackoverflow.com/questions/17034862/how-can-i-run-a-java-app-on-apache-2-2-without-tomcat))
+(from [StackOverflow](http://stackoverflow.com/questions/17034862/how-can-i-run-a-java-app-on-apache-2-2-without-tomcat))
 
   * [Apache TomCat](https://tomcat.apache.org/tomcat-3.2-doc/tomcat-apache-howto.html): servlets container that delivers dynamic content as JSP pages.  
   = Catalina (servlet container) +   
@@ -21,4 +21,4 @@ Alternatives:
   One more motivation: continuously increasing in number of users, whilst Apache keeps decreasing, according to [Netcraft statistics](https://news.netcraft.com/archives/2016/10/21/october-2016-web-server-survey.html).  
 
 
-  Took me almost a whole month to (almost) understand how they work and implement a basic example (a servlet that accesses a data base deployed to a local Tomcat server). Buuuut... it's fun :). Like a new game whose rules I'm just starting to learn.  
+Took me almost a whole month to (almost) understand how they work and implement a basic example (a servlet that accesses a data base deployed to a local Tomcat server). Buuuut... it's fun :). Like a new game whose rules I'm just starting to learn.  
