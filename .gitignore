@@ -9,6 +9,7 @@
 *.ilk
 *.pdb
 *.exp
+*.class
 
 # Precompiled Headers
 *.gch
@@ -43,3 +44,4 @@ out/
 # **/.idea/workspace.xml
 # **/.idea/tasks.xml
 .idea/
+lib/
