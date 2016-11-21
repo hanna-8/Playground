@@ -11,7 +11,7 @@ Alternatives:
 
   > "What apache is used for is for either a) providing static content (images, sounds, etc.) and b) load balancing, since it is faster than Tomcat. But this is done in coordination with the Tomcat that serves the java-generated content."  
 
-(from [StackOverflow](http://stackoverflow.com/questions/17034862/how-can-i-run-a-java-app-on-apache-2-2-without-tomcat))
+  (from [StackOverflow](http://stackoverflow.com/questions/17034862/how-can-i-run-a-java-app-on-apache-2-2-without-tomcat))
 
   * [Apache TomCat](https://tomcat.apache.org/tomcat-3.2-doc/tomcat-apache-howto.html): servlets container that delivers dynamic content as JSP pages.  
   = Catalina (servlet container) +   
