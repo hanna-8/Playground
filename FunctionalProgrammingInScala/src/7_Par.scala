@@ -2,7 +2,7 @@ import java.util.Calendar
 import java.util.concurrent._
 import language.implicitConversions
 
-object Chapter7_Par {
+object ch7_par {
 
 
   type Par[A] = ExecutorService => Future[A]

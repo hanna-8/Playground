@@ -1,53 +1,98 @@
-import scala.annotation.tailrec
-import scala.util.Random
+import fpinscala.state._
 
-object Chapter8_Test {
+object ch8_test {
 
-  // Object for the generator of random elements of type A
-  object Gen {
-    def choose(start: Int, stopExclusive: Int): Gen[Int] =
-      new Gen(r => r.nextInt(stopExclusive - start) + start)
 
-    def unit[A](a: => A): Gen[A] = Gen(r => a)
+  //    def &&(p: Prop): Prop = {
+  //      val current = this
+  //      new Prop {
+  //        override def check: Either[(FailedCase, SuccessCount), SuccessCount] =
+  //          (current.check, p.check) match {
+  //            case (Right(successCurrent), Right(successOther)) => Right(successCurrent + successOther)
+  //            case (Left((errorCurrent, successCurrent)), Right(successOther)) =>
+  //              Left((errorCurrent, successCurrent + successOther))
+  //            case (Right(successCurrent), Left((errorOther, successOther))) =>
+  //              Left((errorOther, successCurrent + successOther))
+  //            case (Left((errorCurrent, successCurrent)), Left((errorOther, successOther))) =>
+  //              Left((errorCurrent + errorOther, successCurrent + successOther))
+  //          }
+  //      }
+  //    }
 
-    def boolean: Gen[Boolean] = Gen(r => r.nextBoolean())
 
-    // List of max. 42 random elements of type A
-    def listOf[A](g: Gen[A]): Gen[List[A]] = g.listOfN(Gen.choose(0, 42))
-
-    def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] = boolean.flatMap(b => if(b) g1 else g2)
-
-    def weighted[A](g1: (Gen[A], Int), g2: (Gen[A], Int)): Gen[A] = {
-      choose(0, g1._2 + g2._2).flatMap[A]((w: Int) => { if (w < g1._2) g1._1 else g2._1 } )
+  case class Gen[A](sample: State[RNG, A]) {
+    def generate(r: RNG): A = {
+      sample.run(r)._1
     }
+
+    def flatMap[B](f: A => Gen[B]): Gen[B] = Gen(State(rng => {
+      val (a, nextRng) = sample.run(rng)
+      f(a).sample.run(nextRng)
+    }))
+
+    def listOfN(size: Gen[Int]): Gen[List[A]] =
+      size.flatMap(i => Gen.listOfNI(i, this))
+
   }
 
+  object Gen {
 
-  // Generator of random elements of type A
-  case class Gen[A](get: Random => A) {
+    def choose(start: Int, stopExclusive: Int): Gen[Int] = Gen[Int](
+      State[RNG, Int](rng => {
+        val (generatedNumber, nextRng) = RNG.nonNegativeInt(rng)
 
-    def listOfN(n: Int): Gen[List[A]] = Gen(r => List.fill(n)(get(r)))
+        (start + generatedNumber % (stopExclusive - start), nextRng)
+      })
+    )
 
-    def flatMap[B](f: A => Gen[B]): Gen[B] = Gen(r => f(get(r)).get(r))
+    def unit[A](a: => A): Gen[A] = Gen(State.unit(a))
 
-    def listOfN(size: Gen[Int]): Gen[List[A]] = size flatMap (n => listOfN(n))
+    def boolean: Gen[Boolean] = Gen(State(rng => RNG.boolean(rng)))
+
+    def listOfNI[A](n: Int, g: Gen[A]): Gen[List[A]] = Gen(
+      State.sequence(List.fill(n)(g.sample)))
+
+    def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] =
+      boolean.flatMap({
+        case true => g1
+        case false => g2
+      })
+
+    def weighted[A](g1: (Gen[A], Int), g2: (Gen[A], Int)): Gen[A] =
+      choose(0, g1._2 + g2._2).flatMap(w => if (w < g1._2) g1._1 else g2._1)
+
   }
 
-//
-//  object SGen {
-//    def listOf[A](g: Gen[A]): SGen[List[A]] = SGen((n: Int) => g.listOfN(n))
-//  }
+  case class Prop(run: (Int, RNG) => Prop.Result) {
 
-//
-//  case class SGen[+A](forSize: Int => Gen[A]) {
-//
-//  }
+    import Prop._
 
+    def check: Result = {
+      val rng = RNG.Simple(8)
+      val tests = 10
+      run(tests, rng)
+    }
 
-  // Object for the properties to be tested.
+    def &&(p: Prop): Prop = Prop((n, rng) => {
+      val (r1, r2) = (run(n, rng), p.run(n, rng))
+      (r1, r2) match {
+        case (Failed(s1, n1), Failed(s2, n2)) => Failed(s1 + s2, n1 + n2)
+        case (Failed(s, c), _) => Failed(s, c + n)
+        case (_, Failed(s, c)) => Failed(s, c + n)
+        case _ => Passed
+      }})
+
+    def ||(p: Prop): Prop = Prop((n, rng) => {
+      val (r1, r2) = (run(n, rng), p.run(n, rng))
+      (r1, r2) match {
+        case (Failed(s1, n1), Failed(s2, n2)) => Failed(s1 + s2, n1 + n2)
+        case (_, _) => Passed
+      }})
+  }
+
   object Prop {
 
-    trait Result {
+    sealed trait Result {
       def failed: Boolean
     }
 
@@ -55,82 +100,34 @@ object Chapter8_Test {
       def failed = false
     }
 
-    case class Failed(reason: FailureReason, successes: SuccessCount) extends Result {
+    case class Failed(reason: String, passedCount: Int) extends Result {
       def failed = true
     }
 
-    type SuccessCount = Int // type alias
-    type FailureReason = String
-    type TestsCount = Int
+    def forAll[A](ga: Gen[A])(f: A => Boolean): Prop = Prop(
+      (n, rng) => {
+        lazy val wholeList = Gen.listOfNI(n, ga).generate(rng)
+        val nrPassed = wholeList.takeWhile(a => f(a) == true).size
 
-    def forAll[A](g: Gen[A])(f: A => Boolean): Prop = new Prop ((count: Int, rnd: Random) => {
-      @tailrec
-      def go(index: Int): Result =
-        if (index == count)
-          Prop.Passed
-        else {
-            val v = g.get(rnd)
-            if (!f(v)) Prop.Failed("" + v, index)
-            else go(index + 1)
-        }
-
-      go(0)
-    })
+        if (nrPassed == n) Passed
+        else Failed("" + wholeList(nrPassed), nrPassed)
+      })
 
   }
 
 
-  // Properties to be tested.
-  case class Prop(run: (Prop.TestsCount, Random) => Prop.Result) {
-    def check: Prop.Result = {
-      val r: Random = new Random(42)
-      val tests = 10
-      run(tests, r)
-    }
-
-    def && (p2: Prop): Prop = new Prop((count, random) => {
-       val ret = run(count, random)
-       println("\t\t &&1 " + ret)
-       ret match {
-         case Prop.Passed => {
-           val ret2 = p2.run(count, random)
-           println("\t\t &&2 " + ret2)
-           ret2 match {
-             case Prop.Failed(reason, c) => Prop.Failed(reason, c + count)
-             case p => p
-           }
-         }
-         case Prop.Failed(reason, c) => Prop.Failed(reason, count + c)
-       }
-    })
-
-    def || (p2: Prop): Prop = new Prop((count, random) => {
-      val ret = run(count, random)
-      println("\t\t ||1 " + ret)
-      ret match {
-        case Prop.Failed(reason1, c1) => {
-          val ret2 = p2.run(count, random)
-          println("\t\t ||2 " + ret2)
-          ret2 match {
-            case Prop.Failed(reason2, c2) => Prop.Failed(reason1 + " and " + reason2, c1 + c2)
-            case p => p
-          }
-        }
-        case p => p
-      }
-    })
-  }
-
-
-  // The one and only... main.
   def main(args: Array[String]): Unit = {
-    //println(ForAll(5)((i:Int) => i % 2 == 0).check)
-    val r: Random = new Random(42)
-    println(Gen.listOf(Gen.choose(1, 42)).get(r))
+    val r = RNG.Simple(8)
 
-    val intList = Gen.listOf(Gen.choose(0,100))
+    println("ybdbd " + Gen.boolean.generate(r))
+    println(Gen.listOfNI(10, Gen.choose(0, 8)).generate(r))
+    println(Gen.choose(0, 8).listOfN(Gen.choose(0, 10)).generate(r))
+
+    // 10 numbers between 0 and 8
+    val intList = Gen.choose(0, 8).listOfN(Gen.choose(0, 10))
     val prop1 = Prop.forAll(intList)(ns => ns.reverse.reverse == ns)
-    val prop2 = Prop.forAll(intList)(ns => ns.size > 5)
+    val prop2 = Prop.forAll(intList)(ns => ns.size < 5)
+
     val prop3 = prop1 && prop2
     val prop4 = prop1 || prop2
     val prop5 = prop1 && prop1

@@ -1,3 +1,5 @@
+package Part1
+
 object Chapter2 {
     def fibonacci(x: Int): Int = {
         def go(n: Int): Int = 

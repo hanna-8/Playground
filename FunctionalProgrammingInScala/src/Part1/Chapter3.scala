@@ -1,4 +1,6 @@
-import scala.annotation.tailrec 
+package Part1
+
+import scala.annotation.tailrec
 
 object Chapter3 {
 

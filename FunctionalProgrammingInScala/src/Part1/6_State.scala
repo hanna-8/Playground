@@ -1,4 +1,4 @@
-package state
+package Part1
 
 object Chapter6_State {
 
