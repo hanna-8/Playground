@@ -1,3 +1,8 @@
+/**
+  * Algebra = functions operating over some data type(s)
+  *         + set of laws specifying relationships between the functions.
+  */
+
 import java.util.Calendar
 import java.util.concurrent._
 import language.implicitConversions

@@ -1,24 +1,7 @@
 import fpinscala.state._
+import fpinscala.laziness._
 
 object ch8_test {
-
-
-  //    def &&(p: Prop): Prop = {
-  //      val current = this
-  //      new Prop {
-  //        override def check: Either[(FailedCase, SuccessCount), SuccessCount] =
-  //          (current.check, p.check) match {
-  //            case (Right(successCurrent), Right(successOther)) => Right(successCurrent + successOther)
-  //            case (Left((errorCurrent, successCurrent)), Right(successOther)) =>
-  //              Left((errorCurrent, successCurrent + successOther))
-  //            case (Right(successCurrent), Left((errorOther, successOther))) =>
-  //              Left((errorOther, successCurrent + successOther))
-  //            case (Left((errorCurrent, successCurrent)), Left((errorOther, successOther))) =>
-  //              Left((errorCurrent + errorOther, successCurrent + successOther))
-  //          }
-  //      }
-  //    }
-
 
   case class Gen[A](sample: State[RNG, A]) {
     def generate(r: RNG): A = {
@@ -53,11 +36,13 @@ object ch8_test {
       State.sequence(List.fill(n)(g.sample)))
 
     def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] =
-      boolean.flatMap({
+      boolean.flatMap {
         case true => g1
         case false => g2
-      })
+      }
 
+    // 4, 6
+    // 0 -> 10
     def weighted[A](g1: (Gen[A], Int), g2: (Gen[A], Int)): Gen[A] =
       choose(0, g1._2 + g2._2).flatMap(w => if (w < g1._2) g1._1 else g2._1)
 
@@ -73,7 +58,20 @@ object ch8_test {
       run(tests, rng)
     }
 
-    def &&(p: Prop): Prop = Prop((n, rng) => {
+    def &&(p: Prop): Prop = Prop((n, rng) =>
+      run(n, rng) match {
+        case Passed =>
+          p.run(n, rng) match {
+            case Failed(s, c) => Failed(s, c + n)
+            case Passed => Passed
+          }
+        case r1@Failed(_, _) => r1
+      })
+
+    //def ||(p: Prop): Prop = Prop((n, rng) => {
+    //}
+
+    def &&&(p: Prop): Prop = Prop((n, rng) => {
       val (r1, r2) = (run(n, rng), p.run(n, rng))
       (r1, r2) match {
         case (Failed(s1, n1), Failed(s2, n2)) => Failed(s1 + s2, n1 + n2)
@@ -104,7 +102,7 @@ object ch8_test {
       def failed = true
     }
 
-    def forAll[A](ga: Gen[A])(f: A => Boolean): Prop = Prop(
+    def forAll_0[A](ga: Gen[A])(f: A => Boolean): Prop = Prop(
       (n, rng) => {
         lazy val wholeList = Gen.listOfNI(n, ga).generate(rng)
         val nrPassed = wholeList.takeWhile(a => f(a) == true).size
@@ -113,6 +111,23 @@ object ch8_test {
         else Failed("" + wholeList(nrPassed), nrPassed)
       })
 
+    def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop {
+      (n, rng) => randomStream(as)(rng).zip(Stream.from(0)).take(n).map {
+        case (a, i) => try {
+          if (f(a)) Passed else Failed(a.toString, i)
+        } catch {
+          case e: Exception => Failed(buildMsg(a, e), i)
+        }
+      }.find(_.failed).getOrElse(Passed)
+    }
+
+    def randomStream[A](g: Gen[A])(rng: RNG): Stream[A] =
+      Stream.unfold(rng)(rng => Some(g.sample.run(rng)))
+
+    def buildMsg[A](s: A, e: Exception): String =
+      s"test case: $s\n" +
+        s"generated an exception: ${e.getMessage}\n" +
+        s"stack trace:\n ${e.getStackTrace.mkString("\n")}"
   }
 
 
