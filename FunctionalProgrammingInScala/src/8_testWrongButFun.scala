@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import scala.util.Random
 
 
-object ch8_testMyWay {
+object ch8_testWrongButFun {
 
   // Ob ject for the generator of random elements of type A
   object Gen {

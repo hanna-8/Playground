@@ -30,7 +30,7 @@ object ch9_parse {
 
     // Recognize one or more a-s.
     def many1[A](p: Parser[A]): Parser[List[A]] =
-      p.map2(p.many)(_ +: _)
+      map2(p, p.many)(_ +: _)
 
     // Apply f to the result of p, if successful.
     def map[A, B](p: Parser[A])(f: A => B): Parser[B] =
@@ -40,7 +40,7 @@ object ch9_parse {
       p1.flatMap(a => p2.map(b => f(a, b)))
 
     def map2_v0[A, B, C](p1: Parser[A], p2: => Parser[B])(f: (A, B) => C): Parser[C] =
-      (p1 ** p2) map (f.tupled)
+      (p1 ** p2) map f.tupled
 
     def map2_v1[A, B, C](p1: Parser[A], p2: => Parser[B])(f: (A, B) => C): Parser[C] =
       for {
@@ -78,7 +78,7 @@ object ch9_parse {
     case class ParserOps[A](p: Parser[A]) {
       def |[B >: A](p2: Parser[B]): Parser[B] = self.or(p, p2)
 
-      def or[B >: A](p2: => Parser[B]): Parser[B] = self.or(p, p2)
+      def flatMap[B](f: A => Parser[B]): Parser[B] = self.flatMap(p)(f)
 
       def many: Parser[List[A]] = self.many(p)
 
@@ -86,46 +86,22 @@ object ch9_parse {
 
       def map[B](f: A => B): Parser[B] = self.map(p)(f)
 
-      def slice: Parser[String] = self.slice(p)
+      def map2[B, C](p2: Parser[B])(f: (A, B) => C): Parser[C] = self.map2(p, p2)(f)
 
-      def run(input: String): Either[ParseError, A] = self.run(p)(input)
+      def or[B >: A](p2: => Parser[B]): Parser[B] = self.or(p, p2)
 
       def product[B](p2: Parser[B]): Parser[(A, B)] = self.product(p, p2)
 
-      def map2[B, C](p2: Parser[B])(f: (A, B) => C): Parser[C] = self.map2(p, p2)(f)
-
-      def flatMap[B](f: A => Parser[B]): Parser[B] = self.flatMap(p)(f)
-
       // TODO copy-paste busted! alias?
       def **[B](p2: Parser[B]): Parser[(A, B)] = self.product(p, p2)
+
+      def run(input: String): Either[ParseError, A] = self.run(p)(input)
+
+      def slice: Parser[String] = self.slice(p)
     }
 
 
-    // TODO move outside trait .. maybe
     object laws {
-      def equal[A](p1: Parser[A], p2: Parser[A])(in: Gen[String]): Prop =
-        Prop.forAll(in)(s => run(p1)(s) == run(p2)(s))
-
-      def mapLaw[A](p: Parser[A])(in: Gen[String]): Prop =
-        equal(p, p.map(a => a))(in)
-
-      def charLaw[A](in: Gen[Char]): Prop =
-        Prop.forAll(in)(c => char(c).run(c.toString) == Right(c))
-
-      def stringLaw[A](in: Gen[String]): Prop =
-        Prop.forAll(in)(s => string(s).run(s) == Right(s))
-
-      def orLaws(in: Gen[String]): Prop =
-        Prop.forAll(in)(s => (s | "random").run(s) == Right(s)) &&
-          Prop.forAll(in)(s => ("random" | s).run(s) == Right(s)) &&
-          Prop.forAll(in)(s => (succeed(s) | s) == succeed(s))
-
-      def succeedLaw[A](a: A)(in: Gen[String]): Prop =
-        Prop.forAll(in)(s => succeed(a).run(s) == Right(a))
-
-      //      def productLaws[A](in: Gen[String]): Prop =
-      //        (p ** q) map f == (p map f) ** (q map f)
-      //        p ** (q ** r) == (p ** q) ** r
 
       def basic: Boolean =
         run(listOfN(3, "ya" | "ba"))("yabba dabba doo") == Right("yabba dabba doo") &&
@@ -134,14 +110,36 @@ object ch9_parse {
           char('c').many.slice.map(_.size).run("abba") == Right(0) && // Right!!!
           (char('a').many.slice.map(_.size) ** char('b').many1.slice.map(_.size)).run("aabb") == Right(2) && // 0 or more 'a' followed by one or more 'b'
           regex("[0..9]".r).flatMap(s => listOfN(s.toInt, "a")).run("2aa") == Right("2aa") // n followed by n 'a's
+
+      def charLaw[A](in: Gen[Char]): Prop =
+        Prop.forAll(in)(c => char(c).run(c.toString) == Right(c))
+
+      def equal[A](p1: Parser[A], p2: Parser[A])(in: Gen[String]): Prop =
+        Prop.forAll(in)(s => run(p1)(s) == run(p2)(s))
+
+      def mapLaw[A](p: Parser[A])(in: Gen[String]): Prop =
+        equal(p, p.map(a => a))(in)
+
+      def orLaws(in: Gen[String]): Prop =
+        Prop.forAll(in)(s => (s | "random").run(s) == Right(s)) &&
+          Prop.forAll(in)(s => ("random" | s).run(s) == Right(s)) &&
+          Prop.forAll(in)(s => (succeed(s) | s) == succeed(s))
+
+      def stringLaw[A](in: Gen[String]): Prop =
+        Prop.forAll(in)(s => string(s).run(s) == Right(s))
+
+      def succeedLaw[A](a: A)(in: Gen[String]): Prop =
+        Prop.forAll(in)(s => succeed(a).run(s) == Right(a))
+
+      //      def productLaws[A](in: Gen[String]): Prop =
+      //        (p ** q) map f == (p map f) ** (q map f)
+      //        p ** (q ** r) == (p ** q) ** r
     }
 
   }
 
 
   def main(args: Array[String]): Unit = {
-
     println("ybdbd")
-
   }
 }
