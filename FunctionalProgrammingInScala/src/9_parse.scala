@@ -2,6 +2,7 @@ import fpinscala.testing._
 
 import scala.util.matching.Regex
 
+
 object ch9_parse {
 
   trait Parsers [ParseError, Parser[+_]] {
@@ -109,7 +110,7 @@ object ch9_parse {
           char('a').many.slice.map(_.size).run("abba") == Right(2) &&
           char('c').many.slice.map(_.size).run("abba") == Right(0) && // Right!!!
           (char('a').many.slice.map(_.size) ** char('b').many1.slice.map(_.size)).run("aabb") == Right(2) && // 0 or more 'a' followed by one or more 'b'
-          regex("[0..9]".r).flatMap(s => listOfN(s.toInt, "a")).run("2aa") == Right("2aa") // n followed by n 'a's
+          regex("[0..9]".r).flatMap(s => listOfN(s.toInt, "a")).run("2aa") == Right("2aa") // 'n' followed by n 'a's
 
       def charLaw[A](in: Gen[Char]): Prop =
         Prop.forAll(in)(c => char(c).run(c.toString) == Right(c))
@@ -138,6 +139,82 @@ object ch9_parse {
 
   }
 
+
+  // string(s): Recognizes and returns a single String
+  // regex(s): Recognizes a regular expression s
+  // slice(p): Returns the portion of input inspected by p if successful
+  // succeed(a): Always succeeds with the value a
+  // flatMap(p)(f): Runs a parser, then uses its result to select a second parser to
+  //   run in sequence
+  // or(p1,p2): Chooses between two parsers, first attempting p1, and then p2 if p1
+  //   fails
+  //
+  // map(p)(f): Apply f to the result of p, if successful.
+  // map2(p1, p2)(f)
+  // many(p): Recognize 0 or more repetitions of a-s.
+  // many1(p): Recognize one or more a-s.
+  // **(p1, p2): Run p1 followed by p2, assuming p1 was successful. Return the pair of their results, if successful.
+
+
+  trait JSON
+  object JSON {
+    case object JNull extends JSON
+    case class JNumber(get: Double) extends JSON
+    case class JString(get: String) extends JSON
+    case class JBool(get: Boolean) extends JSON
+    case class JArray(get: IndexedSeq[JSON]) extends JSON
+    case class JObject(get: Map[String, JSON]) extends JSON
+  }
+
+//  def parseJString[Err, Parser[+_]](s: JSON.JString, P: Parsers[Err, Parser]): Parser[String] = {
+//    import P._
+//    succeed(s.get)
+//  }
+
+  trait jsonParsers[Err, Parser[+_]] extends Parsers[Err, Parser] {
+
+    def jnullParser: Parser[JSON] = succeed(JSON.JNull)
+
+
+
+    def jvalueParser(p: Parser[String])(f: String => JSON): Parser[JSON] =
+      (regex("\"[a-zA-Z]*\" *: *".r) ** p).map(v => v match {
+        case (k, s) => f(s)
+      })
+
+    def jstringParser: Parser[JSON] =
+      jvalueParser(regex("\"[a-zA-Z ]*\"".r))(JSON.JString)
+
+    def jnumberParser: Parser[JSON] =
+      jvalueParser(regex("[+-]?\\d+.?\\d*".r))(s => JSON.JNumber(s.toDouble))
+
+    def jboolParser: Parser[JSON] = jnullParser
+    def jarrayParser: Parser[JSON] = jnullParser
+
+    def jobjectParser: Parser[JSON] = ???
+
+
+  }
+
+//
+//  def jsonParser[Err, Parser[+_]](P: Parsers[Err, Parser]): Parser[JSON] = {
+//    import P._
+//    "{" **
+//
+//    //val spaces = char(' ').many.slice
+//    //val values = char(',').many
+//
+//  }
+
+  def split[Err, Parser[+_]](P: Parsers[Err, Parser], p: Parser[String], c: Char): Seq[Parser[String]] = {
+    import P._
+    p map (s => s.split(c))
+  }
+
+//  def jsonLaws[Err, Parser[+_]](P: Parsers[Err, Parser]): Parser[JSON] = {
+//    import P._
+//    "{" **
+//  }
 
   def main(args: Array[String]): Unit = {
     println("ybdbd")
