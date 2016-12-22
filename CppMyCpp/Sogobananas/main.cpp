@@ -1,11 +1,8 @@
-#include "SogoBoard.h"
+#include "Sogo.h"
 
-#include <vector>
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include <fstream>
-#include <string>
-#include <thread>
 
 
 const std::string INPUT_FILE_NAME = "in.txt";
@@ -16,16 +13,16 @@ int main() {
 
     try {
     	SogoBoard board;
-		std::ifstream in(INPUT_FILE_NAME);
-			
+
 		// Throw exceptions in case any i/o operation fails.
+		std::ifstream in(INPUT_FILE_NAME);			
 		in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
 		in >> board;
 		std::cout << board;
 
-    	// Sogo sogo(input);
-    	// sogo.run();
+    	Sogo sogo;
+    	sogo.run(board);
     }
 	catch (const std::ifstream::failure& e) {
 		std::cout << "Exception opening / reading / closing the file " << INPUT_FILE_NAME << ".\n";
