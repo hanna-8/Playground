@@ -9,6 +9,5 @@ public:
 	void run(const SogoBoard& board) const;
 
 private:
-
-	std::vector<int> shortestPath(const SogoBoard& board, const SogoBoard::Coords here, SogoBoard::Coords dest);
+	std::vector<int> shortestPath(const SogoBoard& board, const SogoBoard::Coords source, SogoBoard::Coords dest);
 };

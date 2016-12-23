@@ -40,6 +40,8 @@ bool SogoBoard::solved() {
  * R -> B -> D 		=> 		_ -> R -> F
  */
 bool Sogo::moveRobot(Cell robotCell, Cell nextCell) {
+	if (at(nextCell) == Dict::free || at(nextCell) == Dict::box))
+
 	if (at(nextCell) == Dict::box) {
 		auto nextBoxCell = mirrorCell(nextCell, robotCell);
 		if (at(*nextBoxCell) == Dict::free)	// R -> B -> _
