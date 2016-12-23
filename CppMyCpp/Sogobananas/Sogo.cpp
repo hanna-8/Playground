@@ -28,16 +28,16 @@ bool Sogo::run(const SogoBoard& board) const {
 
 
 void Sogo::pushBox(SogoBoard board, SogoBoard::Cell boxCell, SogoBoard::Cell nextCell) {
-	auto robotCell = board.findRobot();
+	auto robotCell = board.find(Dict.robot);
 	auto robotDest = board.mirrorCell(boxCell, nextCell);
 	auto robotPath = shortestPath(board, robotCell, robotDest, board.isFree);	// Optional
 
 	for (nextCell: robotPah) {
-		board.swap(robotCell, nextCell);
+		board.moveRobot(robotCell, nextCell);
 		robotCell = nextCell;
 	}
 
-	board.pushBox(robotCell, boxCell);
+	board.moveRobot(robotCell, boxCell);
 }
 
 
@@ -52,15 +52,13 @@ bool Sogo::shortestPath(SogoBoard& board, SogoBoard::Cell source, SogoBoard::Cel
 		if (current == dest)
 			return true;
 
-		std::vector<SogoBoard::Cell> neighbors = {
-			{ current.first - 1, current.second }, 
-			{ current.first + 1, current.second },
-			{ current.first, current.second - 1 },
-			{ current.first, current.second + 1 },
-		};
+		std::vector<Cell> neighbors(4);
+		auto neighborMaths = { {0, -1}, {0, 1}, {-1, 0}, {1, 0} };
+		for (auto [first, second]: neighborMaths)
+			neighbors.add(Cell(c.x() + first, c.y() + second));
+
 		std::remove_if(neighbors.begin(), neighbors.end(), [](SogoBoard::Cell n) { 
 			!moveIsValid(current, n) || predecessors.containsKey(n);
-		});
 
 		for(n: neighbors) {
 			predecessors[n] = current;

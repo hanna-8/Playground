@@ -33,7 +33,10 @@ public:
 	boost::optional<Cell> find(Dict type) const;
 	bool isFree(Cell c) const;
 	board.mirrorCell(from, to);
-	
+	Cell board.mirrorCell(Cell origin, Cell reflected) const;
+	void swapContent(Cell c1, Cell c2);
+	std::vector<Cell> getFreeNeighborCells() const;
+
 	// int at(std::pair<std::size_t, std::size_t> location) const { return m_board.at(location.first * m_width + location.second); };	// throws index_out_of_bounds
 	// void set(std::pair<std::size_t, std::size_t> location, int i) { m_board.at(location.first * m_width + location.second) = i; };	// throws index_out_of_bounds
 
