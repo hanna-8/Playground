@@ -1,6 +1,16 @@
 #include "SogoBoard.h"
 
 
+SogoBoard::SogoBoard()
+	:m_height(0), m_width(0) {
+};
+
+SogoBoard::SogoBoard(std::size_t height, std::size_t width, T def)
+	m_height(height), m_width(width) {
+	m_board(height * width, def)
+};
+
+
 boost::optional<SogoBoard::Cell> SogoBoard::find(Dict type) {
 	boost::optional<Cell> found;
 	for (c: m_board)
@@ -39,9 +49,8 @@ bool SogoBoard::solved() {
  * R -> B -> _		=>		_ -> R -> B
  * R -> B -> D 		=> 		_ -> R -> F
  */
-bool Sogo::moveRobot(Cell robotCell, Cell nextCell) {
-	if (at(nextCell) == Dict::free || at(nextCell) == Dict::box))
-
+bool SogoBoard::move(Cell robotCell, Cell nextCell) {
+	// Move box, if any
 	if (at(nextCell) == Dict::box) {
 		auto nextBoxCell = mirrorCell(nextCell, robotCell);
 		if (at(*nextBoxCell) == Dict::free)	// R -> B -> _
@@ -51,7 +60,9 @@ bool Sogo::moveRobot(Cell robotCell, Cell nextCell) {
 		else 
 			return false;
 	}
-	else if (at(nextCell) == Dict::free) {
+	
+	// Move robot
+	if (at(nextCell) == Dict::free || at(nextCell) == Dict::box) {
 		at(robotCell) = Dict.free;
 		at(nextCell) = Dict.robot;
 		return true;

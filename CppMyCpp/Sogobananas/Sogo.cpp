@@ -10,9 +10,9 @@ bool Sogo::run(const SogoBoard& board) const {
 	if (board.solved())
 		return true;
 
-	auto boxCell = board.find(Dict.box);
-	auto boxPath = shortestPath(board, boxCell, board.find(Dict.dest), [](SogoBoard::Cell from, SogoBoard::Cell to) {
-		return board.isFree(to) == true && board.isFree(board.mirrorCell(from, to));
+	auto boxCell = *(board.find(Dict::box));	// Not solved => not null.
+	auto boxPath = shortestPath(board, boxCell, *(board.find(Dict::dest)), [](SogoBoard::Cell from, SogoBoard::Cell to) {
+		return board.isFree(to) == true && (board.isFree(board.mirrorCell(from, to) || board.at(board.mirrorCell(from, to) == Dict::robot));
 	});	// Optional
 
 	if (!boxPath)
@@ -27,24 +27,26 @@ bool Sogo::run(const SogoBoard& board) const {
 }
 
 
+// Push box one cell
 void Sogo::pushBox(SogoBoard board, SogoBoard::Cell boxCell, SogoBoard::Cell nextCell) {
-	auto robotCell = board.find(Dict.robot);
+	auto robotCell = board.find(Dict::robot);
 	auto robotDest = board.mirrorCell(boxCell, nextCell);
 	auto robotPath = shortestPath(board, robotCell, robotDest, board.isFree);	// Optional
 
 	for (nextCell: robotPah) {
-		board.moveRobot(robotCell, nextCell);
+		board.move(robotCell, nextCell);
 		robotCell = nextCell;
 	}
 
-	board.moveRobot(robotCell, boxCell);
+	board.move(robotCell, boxCell);
 }
 
 
-bool Sogo::shortestPath(SogoBoard& board, SogoBoard::Cell source, SogoBoard::Cell dest, std::function<bool(SogoBoard::Cell, SogoBoard::Cell)> moveIsValid) {
+boost::optional<std::stack<SogoBoard::Cell>> Sogo::shortestPath(SogoBoard& board, SogoBoard::Cell source, SogoBoard::Cell dest, std::function<bool(SogoBoard::Cell, SogoBoard::Cell)> moveIsValid) {
 
 	std::queue<SogoBoard::Cell> remaining;
 	std::map<SogoBoard::Cell, SogoBoard::Cell> predecessors;
+	boost::optional<std::stack<SogoBoard::Cell>> pathOrNot;
 
 	predecessors[source] = source;
 
@@ -71,5 +73,15 @@ bool Sogo::shortestPath(SogoBoard& board, SogoBoard::Cell source, SogoBoard::Cel
 		return sh(remaining.pop());
 	}
 
-	return sh(source);
+	if (!sh(source)) {
+		Cell current = dest;
+		auto path;
+		while (current != source) {
+			path.push(current);
+			current = predecessors[current];
+		}
+		pathOrNot = path;
+	}
+
+	return pathOrNot;
 }

@@ -5,37 +5,28 @@
 #include <vector>
 
 
-enum Dict {
-	free = 0,
-	obstacle = 1,
-	box = 2,
-	dest = 3,
-	robot = 4,
-	full = 5	// dest + box
-}
-
-//template <type T>
+template <type T>
 class SogoBoard {
 public: 
-	SogoBoard(): m_height(0), m_width(0) {};
+	SogoBoard();
+	SogoBoard(std::size_t width, std::size_t height, T value);
 	~SogoBoard() {};
 
-	struct Cell {
-		Cell(std::size_t x, std::size_t y): p(std::make_pair(x, y)) {}
-		std::size_t x() { return p.first; } 
-		std::size_t y() { return p.second; } 
-
-	private: 	
-		std::pair<std::size_t, std::size_t> p;
+	struct Loc {
+		Loc(std::size_t newx, std::size_t newy): x(newx), y(newy) {}
+		Loc& operator+(const Loc& rhs) { return Loc(p.x + rhs.x, p.y + rhs.y; }
+	private:
+		size_t x;
+		size_t y;
 	};
 
 	bool solved() const;
 	boost::optional<Cell> find(Dict type) const;
 	bool isFree(Cell c) const;
-	board.mirrorCell(from, to);
-	Cell board.mirrorCell(Cell origin, Cell reflected) const;
-	void swapContent(Cell c1, Cell c2);
+	boost::optional<Cell> mirrorCell(Cell from, Cell to) const;
 	std::vector<Cell> getFreeNeighborCells() const;
+	
+	bool move(Cell robotCell, Cell nextCell);
 
 	// int at(std::pair<std::size_t, std::size_t> location) const { return m_board.at(location.first * m_width + location.second); };	// throws index_out_of_bounds
 	// void set(std::pair<std::size_t, std::size_t> location, int i) { m_board.at(location.first * m_width + location.second) = i; };	// throws index_out_of_bounds
