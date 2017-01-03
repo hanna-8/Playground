@@ -138,7 +138,7 @@ object ch8_test {
     println(Gen.listOfNI(10, Gen.choose(0, 8)).generate(r))
     println(Gen.choose(0, 8).listOfN(Gen.choose(0, 10)).generate(r))
 
-    // 10 numbers between 0 and 8
+    // at most 10 numbers between 0 and 8
     val intList = Gen.choose(0, 8).listOfN(Gen.choose(0, 10))
     val prop1 = Prop.forAll(intList)(ns => ns.reverse.reverse == ns)
     val prop2 = Prop.forAll(intList)(ns => ns.size < 5)

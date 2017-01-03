@@ -15,7 +15,22 @@ object ch9_parse {
     implicit def asStringParser[A](a: A)(implicit f: A => Parser[String]):
     ParserOps[String] = ParserOps(f(a))
 
+
+    // "Lift"-er combinators
+
     implicit def char(c: Char): Parser[Char] = string(c.toString) map (_.charAt(0))
+
+    //implicit def digit(i: Int): Parser[Int] =
+
+    implicit def regex(rx: Regex): Parser[String] = ???
+
+    // Recognizes and returns a single string
+    implicit def string(s: String): Parser[String] = ???
+
+    // Always succeed with the value a.
+    def succeed[A](a: A): Parser[A] = string("") map (_ => a)
+
+    def untrimmed(s: String): Parser[String] = regex(("\\s*" + s + "\\s*").r)
 
     def flatMap[A, B](p: Parser[A])(f: A => Parser[B]): Parser[B] = ???
 
@@ -49,19 +64,10 @@ object ch9_parse {
         b <- p2
       } yield f(a, b)
 
+    //def optional(p: Parser[String]): Parser[String] = p | succeed()
+
     // Choose between p1 and p2. First attempt: p1. If p1 fails, choose p2.
     def or[A](p1: Parser[A], p2: => Parser[A]): Parser[A] = ???
-
-    implicit def regex(rx: Regex): Parser[String] = ???
-
-    // Return a portion of the input string inspected by p if successful
-    def slice[A](p: Parser[A]): Parser[String] = ???
-
-    // Recognizes and returns a single string
-    implicit def string(s: String): Parser[String] = ???
-
-    // Always succeed with the value a.
-    def succeed[A](a: A): Parser[A] = string("") map (_ => a)
 
     // Run p1 followed by p2, assuming p1 was successful
     def product[A, B](p1: Parser[A], p2: => Parser[B]): Parser[(A, B)] =
@@ -74,6 +80,9 @@ object ch9_parse {
       } yield (a, b)
 
     def run[A](p: Parser[A])(input: String): Either[ParseError, A] = ???
+
+    // Return a portion of the input string inspected by p if successful
+    def slice[A](p: Parser[A]): Parser[String] = ???
 
 
     case class ParserOps[A](p: Parser[A]) {
@@ -136,7 +145,6 @@ object ch9_parse {
       //        (p ** q) map f == (p map f) ** (q map f)
       //        p ** (q ** r) == (p ** q) ** r
     }
-
   }
 
 
@@ -166,35 +174,86 @@ object ch9_parse {
     case class JObject(get: Map[String, JSON]) extends JSON
   }
 
+
+  trait jsonParsers[Err, Parser[+_]] extends Parsers[Err, Parser] {
+
+    def boolLiteral: Parser[JSON] = ("true" | "false").map(s => JSON.JBool(s.toBoolean))
+    def nullLiteral: Parser[JSON] = succeed(JSON.JNull)
+    def numberLiteral: Parser[JSON] = regex("[+-]?\\d*\\.?\\d+".r).map(s => JSON.JNumber(s.toDouble))
+
+    // Simplified. Will recognize any character except ".
+    def stringLiteral: Parser[JSON] =
+      ("\"" ** regex("[^\"]+".r) ** "\"").map(tuple => JSON.JString(tuple._1._2))
+
+
+    def jsonValue: Parser[JSON] = boolLiteral | nullLiteral | numberLiteral | stringLiteral | jsonArray | jsonObject
+
+
+    def jsonArray: Parser[JSON] =
+      (untrimmed("[") ** many(jsonValue ** untrimmed(",")) ** untrimmed("]")).map(tuple => {
+        val manyResult = tuple._1._2  // a list of (JSON value, ",") pairs
+        val values = manyResult.map(p => p._1)  // a list of JSON values
+        JSON.JArray(IndexedSeq(values: _*))
+      })
+
+    def jsonObject: Parser[JSON] =
+      (untrimmed("{") ** many(pair ** untrimmed(",")) ** untrimmed("}")).map(tuple => {
+        val manyResult = tuple._1._2  // a list of ((key, JSON value), ",") pairs
+        val values = manyResult.map(p => p._1)  // a list of (key, JSON value) pairs
+        JSON.JObject(Map(values: _*))
+      })
+
+    def pair: Parser[(String, JSON)] = {
+      for {
+        k <- stringLiteral
+        col <- untrimmed(":")
+        v <- boolLiteral | nullLiteral | numberLiteral | stringLiteral | jsonArray | jsonObject
+        com <- untrimmed(",")
+      } yield(k, v)
+    }
+
+    // Recognizes an empty JSON object: "{}"
+    def emptyJsonParser: Parser[JSON] = {
+      (string("{") ** string("}")).map(_ => JSON.JNull)
+    }
+  }
+
+  def jsonParser[Err, Parser[+_]](P: jsonParsers[Err, Parser]): Parser[JSON] = {
+    import P._
+    emptyJsonParser
+  }
+
+
+
 //  def parseJString[Err, Parser[+_]](s: JSON.JString, P: Parsers[Err, Parser]): Parser[String] = {
 //    import P._
 //    succeed(s.get)
 //  }
 
-  trait jsonParsers[Err, Parser[+_]] extends Parsers[Err, Parser] {
-
-    def jnullParser: Parser[JSON] = succeed(JSON.JNull)
-
-
-
-    def jvalueParser(p: Parser[String])(f: String => JSON): Parser[JSON] =
-      (regex("\"[a-zA-Z]*\" *: *".r) ** p).map(v => v match {
-        case (k, s) => f(s)
-      })
-
-    def jstringParser: Parser[JSON] =
-      jvalueParser(regex("\"[a-zA-Z ]*\"".r))(JSON.JString)
-
-    def jnumberParser: Parser[JSON] =
-      jvalueParser(regex("[+-]?\\d+.?\\d*".r))(s => JSON.JNumber(s.toDouble))
-
-    def jboolParser: Parser[JSON] = jnullParser
-    def jarrayParser: Parser[JSON] = jnullParser
-
-    def jobjectParser: Parser[JSON] = ???
-
-
-  }
+//  trait jsonParsers[Err, Parser[+_]] extends Parsers[Err, Parser] {
+//
+//    def jnullParser: Parser[JSON] = succeed(JSON.JNull)
+//
+//
+//
+//    def jvalueParser(p: Parser[String])(f: String => JSON): Parser[JSON] =
+//      (regex("\"[a-zA-Z]*\" *: *".r) ** p).map(v => v match {
+//        case (k, s) => f(s)
+//      })
+//
+//    def jstringParser: Parser[JSON] =
+//      jvalueParser(regex("\"[a-zA-Z ]*\"".r))(JSON.JString)
+//
+//    def jnumberParser: Parser[JSON] =
+//      jvalueParser(regex("[+-]?\\d+.?\\d*".r))(s => JSON.JNumber(s.toDouble))
+//
+//    def jboolParser: Parser[JSON] = jnullParser
+//    def jarrayParser: Parser[JSON] = jnullParser
+//
+//    def jobjectParser: Parser[JSON] = ???
+//
+//
+//  }
 
 //
 //  def jsonParser[Err, Parser[+_]](P: Parsers[Err, Parser]): Parser[JSON] = {
@@ -205,11 +264,11 @@ object ch9_parse {
 //    //val values = char(',').many
 //
 //  }
-
-  def split[Err, Parser[+_]](P: Parsers[Err, Parser], p: Parser[String], c: Char): Seq[Parser[String]] = {
-    import P._
-    p map (s => s.split(c))
-  }
+//
+//  def split[Err, Parser[+_]](P: Parsers[Err, Parser], p: Parser[String], c: Char): Seq[Parser[String]] = {
+//    import P._
+//    p map (s => s.split(c))
+//  }
 
 //  def jsonLaws[Err, Parser[+_]](P: Parsers[Err, Parser]): Parser[JSON] = {
 //    import P._
