@@ -5,6 +5,52 @@ import scala.util.matching.Regex
 
 object ch9_parse {
 
+  type ParseError = String
+  type Parser[+A] = String => Either[ParseError, A]
+
+  object ParsersImpl extends Parsers[ParseError, Parser] {
+
+    override def string(s: String): Parser[String] =
+      (input: String) => {
+        println("----- ybybd ----- s = " + s + "; input = " + input)
+        if (input.startsWith(s)) Right(s)
+        else Left("NOK::string:: " + input)
+      }
+    override def regex(rx: Regex): Parser[String] =
+      (input: String) =>
+        input match {
+          case `rx` => Right(input)
+          case _ => Left("NOX::regex:: " + input)
+        }
+
+    override def flatMap[A, B](p: Parser[A])(f: A => Parser[B]): Parser[B] =
+      (input: String) =>
+        p(input) match {
+          case Right(a) => f(a)(input)
+          case Left(err) => Left(err)
+        }
+
+    override def or[A](p1: Parser[A], p2: => Parser[A]): Parser[A] =
+      (input: String) =>
+        p1(input) match {
+          case Left(err) => p2(input)
+          case r => r
+        }
+
+    override def run[A](p: Parser[A])(input: String): Either[ParseError, A] = p(input)
+
+    //    def slice[A](p: Parser[A]): Parser[String] =
+//      (input: String) => {
+//        def loop (newInput: String): Parser[String] = {
+//          p(newInput) match {
+//            case Right(s) => loop(s)
+//          }
+//        }}
+
+
+  }
+
+
   trait Parsers [ParseError, Parser[+_]] {
     self =>
 
@@ -98,7 +144,7 @@ object ch9_parse {
 
       def map[B](f: A => B): Parser[B] = self.map(p)(f)
 
-      def map2[B, C](p2: Parser[B])(f: (A, B) => C): Parser[C] = self.map2(p, p2)(f)
+      def map2[B, C](p2: => Parser[B])(f: (A, B) => C): Parser[C] = self.map2(p, p2)(f)
 
       def or[B >: A](p2: => Parser[B]): Parser[B] = self.or(p, p2)
 
@@ -117,10 +163,10 @@ object ch9_parse {
 
       def basic: Boolean =
         run(listOfN(3, "ya" | "ba"))("yabba dabba doo") == Right("yabba dabba doo") &&
-          ("a" | "b").many.slice.run("abba") == Right("abba") && // TODO should work with chars
-          char('a').many.slice.map(_.size).run("abba") == Right(2) &&
-          char('c').many.slice.map(_.size).run("abba") == Right(0) && // Right!!!
-          (char('a').many.slice.map(_.size) ** char('b').many1.slice.map(_.size)).run("aabb") == Right(2) && // 0 or more 'a' followed by one or more 'b'
+//          ("a" | "b").many.slice.run("abba") == Right("abba") && // TODO should work with chars
+//          char('a').many.slice.map(_.size).run("abba") == Right(2) &&
+//          char('c').many.slice.map(_.size).run("abba") == Right(0) && // Right!!!
+//          (char('a').many.slice.map(_.size) ** char('b').many1.slice.map(_.size)).run("aabb") == Right(2) && // 0 or more 'a' followed by one or more 'b'
           regex("[0..9]".r).flatMap(s => listOfN(s.toInt, "a")).run("2aa") == Right("2aa") // 'n' followed by n 'a's
 
       def charLaw[A](in: Gen[Char]): Prop =
@@ -150,85 +196,85 @@ object ch9_parse {
   }
 
 
-  // string(s): Recognizes and returns a single String
-  // regex(s): Recognizes a regular expression s
-  // slice(p): Returns the portion of input inspected by p if successful
-  // succeed(a): Always succeeds with the value a
-  // flatMap(p)(f): Runs a parser, then uses its result to select a second parser to
-  //   run in sequence
-  // or(p1,p2): Chooses between two parsers, first attempting p1, and then p2 if p1
-  //   fails
-  //
-  // map(p)(f): Apply f to the result of p, if successful.
-  // map2(p1, p2)(f)
-  // many(p): Recognize 0 or more repetitions of a-s.
-  // many1(p): Recognize one or more a-s.
-  // **(p1, p2): Run p1 followed by p2, assuming p1 was successful. Return the pair of their results, if successful.
+  /**
+   * string(s): Recognizes and returns a single String
+   * regex(s): Recognizes a regular expression s
+   * slice(p): Returns the portion of input inspected by p if successful
+   * succeed(a): Always succeeds with the value a
+   * flatMap(p)(f): Runs a parser, then uses its result to select a second parser to
+   *   run in sequence
+   * or(p1,p2): Chooses between two parsers, first attempting p1, and then p2 if p1
+   *   fails
+   *
+   * map(p)(f): Apply f to the result of p, if successful.
+   * map2(p1, p2)(f)
+   * many(p): Recognize 0 or more repetitions of a-s.
+   * many1(p): Recognize one or more a-s.
+   * **(p1, p2): Run p1 followed by p2, assuming p1 was successful. Return the pair of their results, if successful.
+   */
 
-
-  trait JSON
-  object JSON {
-    case object JNull extends JSON
-    case class JNumber(get: Double) extends JSON
-    case class JString(get: String) extends JSON
-    case class JBool(get: Boolean) extends JSON
-    case class JArray(get: IndexedSeq[JSON]) extends JSON
-    case class JObject(get: Map[String, JSON]) extends JSON
+  trait JAYSON
+  object JAYSON {
+    case object JNull extends JAYSON
+    case class JNumber(get: Double) extends JAYSON
+    case class JString(get: String) extends JAYSON
+    case class JBool(get: Boolean) extends JAYSON
+    case class JArray(get: IndexedSeq[JAYSON]) extends JAYSON
+    case class JObject(get: Map[String, JAYSON]) extends JAYSON
   }
 
-
-  trait jsonParsers[Err, Parser[+_]] extends Parsers[Err, Parser] {
+  trait jaysonParsers[Err, Parser[+_]] extends Parsers[Err, Parser] {
 
     // Simplified. Will recognize any character except ".
-    def jsonString: Parser[String] = ("\"" ** regex("[^\"]+".r) ** "\"").map(tuple => tuple._1._2)
+    def jaysonString: Parser[String] = ("\"" ** regex("[^\"]+".r) ** "\"").map(tuple => tuple._1._2)
 
-    def boolLiteral: Parser[JSON] = ("true" | "false").map(s => JSON.JBool(s.toBoolean))
-    def nullLiteral: Parser[JSON] = succeed(JSON.JNull)
-    def numberLiteral: Parser[JSON] = regex("[+-]?\\d*\\.?\\d+".r).map(s => JSON.JNumber(s.toDouble))
-    def stringLiteral: Parser[JSON] = jsonString.map(JSON.JString(_))
+    def boolLiteral: Parser[JAYSON] = ("true" | "false").map(s => JAYSON.JBool(s.toBoolean))
+    def nullLiteral: Parser[JAYSON] = succeed(JAYSON.JNull)
+    def numberLiteral: Parser[JAYSON] = regex("[+-]?\\d*\\.?\\d+".r).map(s => JAYSON.JNumber(s.toDouble))
+    def stringLiteral: Parser[JAYSON] = jaysonString.map(JAYSON.JString(_))
 
 
-    def pair: Parser[(String, JSON)] =
+    def pair: Parser[(String, JAYSON)] =
       for {
-        k <- jsonString
+        k <- jaysonString
         col <- untrimmed(":")
-        v <- boolLiteral | nullLiteral | numberLiteral | stringLiteral | jsonArray | jsonObject
+        v <- boolLiteral | nullLiteral | numberLiteral | stringLiteral | jaysonArray | jaysonObject
       } yield(k, v)
 
 
-    // ([, ]) or
-    // ( ( ([, manyResult), lastValue), ])
-    def jsonArray: Parser[JSON] =
-      (untrimmed("[") ** untrimmed("]")).map(_ => JSON.JArray(IndexedSeq())) |  // Empty array
-      (untrimmed("[") ** many(jsonValue ** untrimmed(",")) ** jsonValue ** untrimmed("]")).map(tuple => {
-        val manyResult = tuple._1._1._2  // a list of (JSON value, ",") pairs
-        val lastValue = tuple._1._2  // a JSON value
-        val values = manyResult.map(p => p._1)  // a list of JSON values
-        JSON.JArray(IndexedSeq(values: _*) :+ lastValue)
-      })
+    def jaysonArray: Parser[JAYSON] =
+      (untrimmed("[") ** untrimmed("]")).map(_ => JAYSON.JArray(IndexedSeq())) |  // Empty array
+      (untrimmed("[") ** many(jaysonValue ** untrimmed(",")) ** jaysonValue ** untrimmed("]")).map({
+        case (((p1, manyResult), lastValue), p2) => {
+          val values = manyResult.map(p => p._1)  // a list of JAYSON values
+          JAYSON.JArray(IndexedSeq(values: _*) :+ lastValue)
+      }})
 
-    // ('{', '}') or
-    // ( ( ('{', manyResult), lastPair), '}')
-    def jsonObject: Parser[JSON] =
-      (untrimmed("{") ** untrimmed("}")).map(_ => JSON.JObject(Map())) |  // Empty object
-      (untrimmed("{") ** many(pair ** untrimmed(",")) ** pair ** untrimmed("}")).map(tuple => {
-        val manyResult = tuple._1._1._2  // a list of (JSON pair, ",") pairs
-        val lastPair = tuple._1._2  // a JSON key-value pair
-        val values = manyResult.map(p => p._1)  // a list of JSON pairs
-        JSON.JObject(Map(values: _*) + (lastPair._1 -> lastPair._2))
-      })
+    def jaysonObject: Parser[JAYSON] =
+      (untrimmed("{") ** untrimmed("}")).map(_ => JAYSON.JObject(Map())) |  // Empty object
+      (untrimmed("{") ** many(pair ** untrimmed(",")) ** pair ** untrimmed("}")).map({
+        case (((p1, manyResult), lastPair), p2) => {
+          val values = manyResult.map(p => p._1)  // a list of JAYSON pairs
+          JAYSON.JObject(Map(values: _*) + (lastPair._1 -> lastPair._2))
+      }})
 
 
-    def jsonValue: Parser[JSON] = boolLiteral | nullLiteral | numberLiteral | stringLiteral | jsonArray | jsonObject
+    def jaysonValue: Parser[JAYSON] = boolLiteral | nullLiteral | numberLiteral | stringLiteral | jaysonArray | jaysonObject
   }
 
-  def jsonParser[Err, Parser[+_]](P: jsonParsers[Err, Parser]): Parser[JSON] = {
+  def jaysonParser[Err, Parser[+_]](P: jaysonParsers[Err, Parser]): Parser[JAYSON] = {
     import P._
-    jsonObject
+    jaysonObject
   }
 
 
   def main(args: Array[String]): Unit = {
-    println("ybdbd")
+    import ParsersImpl._
+
+    println(run(string("ya"))("yabba-dabba-doo!").toString)
+    println(run(regex("[0..9]".r).flatMap((s: String) => listOfN(s.toInt, string("a"))))("2aa").toString)
+    println(run(string("dabba") | string("yabba"))("dabba").toString)
+    println(run(many(string("ab")))("abab").toString)
+//    println(run(many(string("y") | string("d") | string("abba")))("yabbadabba").toString)
   }
 }
