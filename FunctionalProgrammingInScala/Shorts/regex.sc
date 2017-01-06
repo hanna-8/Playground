@@ -8,4 +8,6 @@ val rs = "\"[a-zA-Z]*\" *: *".r
 rs.findAllIn("\"abc\":  123\"def\": ").toList
 
 val rword = "\\w+".r
+val pt = Pattern.quote()
+val str = rword.toString()
 rword.findAllIn("abd def\" ghi").toList

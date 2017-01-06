@@ -11,11 +11,10 @@ object ch9_parse {
   object ParsersImpl extends Parsers[ParseError, Parser] {
 
     override def string(s: String): Parser[String] =
-      (input: String) => {
-        println("----- ybybd ----- s = " + s + "; input = " + input)
+      (input: String) =>
         if (input.startsWith(s)) Right(s)
         else Left("NOK::string:: " + input)
-      }
+
     override def regex(rx: Regex): Parser[String] =
       (input: String) =>
         input match {
@@ -226,10 +225,11 @@ object ch9_parse {
   trait jaysonParsers[Err, Parser[+_]] extends Parsers[Err, Parser] {
 
     // Simplified. Will recognize any character except ".
+    // ((", s), ")
     def jaysonString: Parser[String] = ("\"" ** regex("[^\"]+".r) ** "\"").map(tuple => tuple._1._2)
 
     def boolLiteral: Parser[JAYSON] = ("true" | "false").map(s => JAYSON.JBool(s.toBoolean))
-    def nullLiteral: Parser[JAYSON] = succeed(JAYSON.JNull)
+    def nullLiteral: Parser[JAYSON] = string("null").map(_ => JAYSON.JNull)
     def numberLiteral: Parser[JAYSON] = regex("[+-]?\\d*\\.?\\d+".r).map(s => JAYSON.JNumber(s.toDouble))
     def stringLiteral: Parser[JAYSON] = jaysonString.map(JAYSON.JString(_))
 
