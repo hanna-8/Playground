@@ -45,4 +45,6 @@ out/
 # **/.idea/tasks.xml
 .idea/
 lib/
+out/
+target/
 fpinscala/
