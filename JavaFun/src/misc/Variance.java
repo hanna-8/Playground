@@ -1,3 +1,5 @@
+package misc;
+
 import java.util.Vector;
 
 public class Variance {
