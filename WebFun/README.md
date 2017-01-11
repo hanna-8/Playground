@@ -1,7 +1,7 @@
-#Small Hello World projects.
+##Small project to learn basic web stuff.
 ---
 
-###Enter the (**MySQL Server**)[https://www.ntu.edu.sg/home/ehchua/programming/sql/MySQL_HowTo.html]!
+###Enter the [**MySQL Server**](https://www.ntu.edu.sg/home/ehchua/programming/sql/MySQL_HowTo.html)!
 
 Start the server:  
 `cd [...]/mysql/bin`  
@@ -22,7 +22,7 @@ Some usual SQL commands:
 
 ---
 
-###Here's to the (**Tomcat Server**)[https://www.ntu.edu.sg/home/ehchua/programming/howto/Tomcat_HowTo.html]!
+###Here's to the [**Tomcat Server**](https://www.ntu.edu.sg/home/ehchua/programming/howto/Tomcat_HowTo.html)!
 
 Start the server:  
 `cd [...]/tomcat/bin`  
@@ -38,17 +38,18 @@ My custom port: 8042
 
 ###Tomcat directory structure
 
-`ibarcan@EN617085 MINGW64 /d/Programs/tomcat/webapps/hike  
+```
+ibarcan@EN617085 MINGW64 /d/Programs/tomcat/webapps/hike  
 $ tree .  
 .  
 |-- WEB-INF  
 |   |-- classes  
-|   |   \`-- servlets  
-|   |       \`-- SummaryServlet.class  
+|   |   `-- servlets  
+|   |       `-- SummaryServlet.class  
 |   |-- src  
-|   |   \`-- servlets  
-|   |       \`-- SummaryServlet.java  
-|   \`-- web.xml  
+|   |   `-- servlets  
+|   |       `-- SummaryServlet.java  
+|   `-- web.xml  
 |-- education.html  
 |-- experience.html  
 |-- images  
@@ -56,8 +57,8 @@ $ tree .
 |-- projects.html  
 |-- skills.html  
 |-- styles.css  
-\`-- summary.html  `
-
+`-- summary.html  
+```
 
 ---
 
