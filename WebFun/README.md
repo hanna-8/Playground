@@ -1,4 +1,4 @@
-##Small project to learn basic web stuff.
+##Small WEB projects to play with the basic stuff.
 ---
 
 ###Enter the [**MySQL Server**](https://www.ntu.edu.sg/home/ehchua/programming/sql/MySQL_HowTo.html)!
