@@ -1,33 +1,54 @@
+<!doctype html>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
 <html>
   <head>
-    <script type="text/javascript" src="sounds.js"></script>
+    <script type="text/javascript" src="js\hrtf.js"></script>
+    <script type="text/javascript" src="js\main.js"></script>
     <title>Simple Sample</title>
   </head>
 
   <body>
-    <table align="center">
+
+    <audio id="player" controls autoplay loop>
+      <source src="res\infoq-09-sep-clojure-keynote.mp3" type="audio/mpeg" />
+      <p>Your browser does not support the audio element. Sorry.</p>
+    </audio>
+
+    <br /><br />
+    
+    <table>
       <tr>
-	<th />
 	<th>
-	  <input type="button" onclick="up()" value="Up" />
+	  <input type="button" onclick="update(-1, 1, 0)" value="Front-Left" />
 	</th>
-	<th />
+	<th>
+	  <input type="button" onclick="update(0, 1, 0)" value="Front" />
+	</th>
+	<th>
+	  <input type="button" onclick="update(1, 1, 0)" value="Front-Right" />
+	</th>
       </tr>
       <tr>
 	<th>
-	  <input type="button" onclick="left()" value="Left" />
+	  <input type="button" onclick="update(-1, 0, 0)" value="Left" />
 	</th>
 	<th />
 	<th>
-	  <input type="button" onclick="right()" value="Right" />
+	  <input type="button" onclick="update(1, 0, 0)" value="Right" />
 	</th>
       </tr>
       <tr>
-	<th />
 	<th>
-	  <input type="button" onclick="down()" value="Down" />
+	  <input type="button" onclick="update(-1, -1, 0)" value="Back-Left" />
 	</th>
-	<th />
+	<th>
+	  <input type="button" onclick="update(0, -1, 0)" value="Back"
+		 />
+	</th>
+	<th>
+	  <input type="button" onclick="update(1, -1, 0)" value="Back-Right" />
+	</th>
       </tr>
     </table>
 
