@@ -10,48 +10,40 @@
 
   <body>
 
-    <audio id="player" controls autoplay loop>
-      <source src="res\infoq-09-sep-clojure-keynote.mp3" type="audio/mpeg" />
-      <p>Your browser does not support the audio element. Sorry.</p>
-    </audio>
-
     <br /><br />
     
     <table>
       <tr>
 	<th>
-	  <input type="button" onclick="update(-1, 1, 0)" value="Front-Left" />
-	</th>
-	<th>
-	  <input type="button" onclick="update(0, 1, 0)" value="Front" />
-	</th>
-	<th>
-	  <input type="button" onclick="update(1, 1, 0)" value="Front-Right" />
-	</th>
-      </tr>
-      <tr>
-	<th>
-	  <input type="button" onclick="update(-1, 0, 0)" value="Left" />
+	  <audio id="player-left-front" controls autoplay >
+	    <source src="res\infoq-09-sep-clojure-keynote.mp3" type="audio/mpeg" />
+	    <p>Your browser does not support the audio element. Sorry.</p>
+	  </audio>
 	</th>
 	<th />
+	<th />
+      </tr>
+      <tr>
+	<th />
+	<th />
 	<th>
-	  <input type="button" onclick="update(1, 0, 0)" value="Right" />
+	  <audio id="player-right" controls autoplay >
+	    <source src="res\infoq-09-sep-clojure-keynote.mp3" type="audio/mpeg" />
+	    <p>Your browser does not support the audio element. Sorry.</p>
+	  </audio>
 	</th>
       </tr>
       <tr>
+	<th />
 	<th>
-	  <input type="button" onclick="update(-1, -1, 0)" value="Back-Left" />
+	  <audio id="player-back" controls autoplay >
+	    <source src="res\infoq-09-sep-clojure-keynote.mp3" type="audio/mpeg" />
+	    <p>Your browser does not support the audio element. Sorry.</p>
+	  </audio>
 	</th>
-	<th>
-	  <input type="button" onclick="update(0, -1, 0)" value="Back"
-		 />
-	</th>
-	<th>
-	  <input type="button" onclick="update(1, -1, 0)" value="Back-Right" />
-	</th>
+	<th />
       </tr>
     </table>
 
-    <p id="text"></p>
   </body>
 </html>

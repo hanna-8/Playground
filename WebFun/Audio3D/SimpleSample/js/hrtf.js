@@ -182,7 +182,14 @@ function HRTFPanner(audioContext, sourceNode, hrtfContainer) {
 		hiPass.frequency.value = freq;
 	}
 
-
+    /*
+     :-"
+    */
+    this.updateCart = function(x, y, z) {
+	var coords = cartesianToInteraural(x, y, z);
+	update(coords.azm, coords.elv);
+    }
+    
 	/*
 		Updates the current Head Related Impulse Response.
 		Azimuth and elevation are coordinates of the source in the Interaural-Polar 
