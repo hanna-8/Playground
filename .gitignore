@@ -48,3 +48,6 @@ lib/
 out/
 target/
 fpinscala/
+
+# Resources
+*.mp3
