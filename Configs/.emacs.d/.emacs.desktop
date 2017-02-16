@@ -1,0 +1,41 @@
+;; -*- mode: emacs-lisp; coding: emacs-mule; -*-
+;; --------------------------------------------------------------------------
+;; Desktop File for Emacs
+;; --------------------------------------------------------------------------
+;; Created Wed Feb 15 14:15:53 2017
+;; Desktop file format version 206
+;; Emacs version 24.5.1
+
+;; Global section:
+(setq desktop-saved-frameset [frameset 1 (22692 18041 368000 0) (desktop . "206") "ibarcan@EN617085" nil nil ((((font-backend uniscribe gdi) (font . "-outline-Courier New-normal-normal-normal-mono-17-*-*-*-c-*-iso8859-1") (border-width . 2) (internal-border-width . 0) (right-divider-width . 0) (bottom-divider-width . 0) (vertical-scroll-bars) (foreground-color . "#e1e1e0") (background-color . "#2d3743") (mouse-color . "black") (border-color . "black") (screen-gamma) (line-spacing) (left-fringe . 10) (right-fringe . 10) (alpha) (menu-bar-lines . 0) (tool-bar-lines . 0) (title) (fullscreen . maximized) (icon-type) (auto-raise) (auto-lower) (cursor-type . box) (scroll-bar-width . 0) (horizontal-scroll-bars . t) (display-type . color) (background-mode . dark) (cursor-color . "#415160") (environment) (frameset--id . "3C6F-5F51-E6C2-C4A2") (frameset--mini t . t) (height . 42) (width . 145) (modeline . t) (minibuffer . t) (unsplittable) (left . 54) (top + -8) (icon-name) (visibility . t) (display . "w32") (explicit-name) (tool-bar-position . top)) ((min-height . 4) (min-width . 10) (min-height-ignore . 2) (min-width-ignore . 4) (min-height-safe . 1) (min-width-safe . 2) (min-pixel-height . 80) (min-pixel-width . 100) (min-pixel-height-ignore . 40) (min-pixel-width-ignore . 40) (min-pixel-height-safe . 20) (min-pixel-width-safe . 20)) leaf (pixel-width . 1474) (pixel-height . 821) (total-width . 147) (total-height . 41) (normal-height . 1.0) (normal-width . 1.0) (buffer "navigation.el" (selected . t) (hscroll . 0) (fringes 10 10 nil) (margins 2) (scroll-bars 0 0 t nil) (vscroll . 0) (dedicated) (point . 3389) (start . 2715))))])
+(setq desktop-missing-file-warning nil)
+(setq tags-file-name nil)
+(setq tags-table-list nil)
+(setq search-ring nil)
+(setq regexp-search-ring '("MD5" "setq" "file" "split" "managed" "anti" "broken aut"))
+(setq register-alist nil)
+(setq file-name-history '("d:/MyCode/Playground/Clojure/hello-clojure/src/hello_clojure/core.clj" "c:/Users/ibarcan/AppData/Roaming/.emacs.d/customizations/ui.el" "d:/Docs/security/OWASP/notex.txt" "c:/Users/ibarcan/AppData/Roaming/.emacs.d/customizations/navigation.el" "c:/Users/ibarcan/AppData/Roaming/.emacs.d/customizations/editing.el" "d:/Docs/security/OWASP/notex.txt" "d:/Docs/security/sum/" "d:/Docs/security/sum/notes.txt" "d:/Docs/security/OWASP/notex.txt" "d:/Docs/ml/statistics/notes.txt" "d:/Docs/security/CodeReview/" "d:/Docs/security/CodeReview/notes.txt" "d:/Docs/security/CreatingCode/notes.txt" "c:/Users/ibarcan/.lein/profiles.clj" "~/.emacs.d/ido.last" "~/.emacs.d/customizations/ui.el" "d:/Docs/security/OWASP/notex.txt" "~/.emacs.d/elpa/javap-mode-20120223.1408/javap-mode-autoloads.el" "d:/MyCode/Playground/Clojure/hello-clojure/src/hello_clojure/core.clj" "~/.emacs.d/customizations/editing.el" "d:/MyCode/Playground/Clojure/hello-clojure/LICENSE"))
+
+;; Buffer section -- buffers listed in same order as in buffer list:
+(desktop-create-buffer 206
+  "c:/Users/ibarcan/AppData/Roaming/.emacs.d/customizations/navigation.el"
+  "navigation.el"
+  'emacs-lisp-mode
+  '(projectile-mode linum-mode rainbow-delimiters-mode eldoc-mode paredit-mode)
+  3389
+  '(3325 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "d:/MyCode/Playground/Clojure/hello-clojure/src/hello_clojure/core.clj"
+  "core.clj"
+  'clojure-mode
+  '(projectile-mode linum-mode rainbow-delimiters-mode eldoc-mode paredit-mode subword-mode cider-mode)
+  251
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-dos)))
+
