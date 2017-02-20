@@ -1,3 +1,11 @@
+(ns hello-clojure.core
+  (:gen-class))
+
+(defn -main
+  "I don't do a whole lot...yet."
+  [& args]
+  (println "Hello, Clojure!"))
+
 (def asym-hobbit-body-parts [{:name "head" :size 3}
                              {:name "left-eye" :size 1}
                              {:name "left-ear" :size 1}
