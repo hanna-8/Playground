@@ -1,4 +1,5 @@
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.function.IntToDoubleFunction;
 
 public class Main {
@@ -8,12 +9,14 @@ public class Main {
         //java8.Concurrency.testConcurrency();
         //HTTP.SimpleHTTPServer.go();
 
-        java8.Lambdas.whyOnlyOneMethod();
-        java8.Lambdas.composition();
-        IntToDoubleFunction x;
+//        java8.Lambdas.whyOnlyOneMethod();
+//        java8.Lambdas.composition();
+//        IntToDoubleFunction x;
+//
+//        Math.sqrt(BigInteger.valueOf(10252519345963644753026));
 
-        Math.sqrt(BigInteger.valueOf(10252519345963644753026));
+//        java8.Streams.testReferenceParam();
 
-        java8.Streams.testReferenceParam();
+        java8.Streams.reducers(Arrays.asList("1", "2", "3"));
     }
 }
