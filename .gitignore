@@ -51,3 +51,6 @@ fpinscala/
 
 # Resources
 *.mp3
+
+# Temporary files
+*.*~
