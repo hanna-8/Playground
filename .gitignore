@@ -54,3 +54,6 @@ fpinscala/
 
 # Temporary files
 *.*~
+
+# IPython Notebook
+.ipynb_checkpoints
