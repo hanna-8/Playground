@@ -4,12 +4,11 @@
 SogoBoard::SogoBoard()
 	:m_height(0), m_width(0) {
 };
-
+/*
 SogoBoard::SogoBoard(std::size_t height, std::size_t width, T def)
 	m_height(height), m_width(width) {
 	m_board(height * width, def)
 };
-
 
 boost::optional<SogoBoard::Cell> SogoBoard::find(Dict type) {
 	boost::optional<Cell> found;
@@ -43,12 +42,14 @@ bool SogoBoard::solved() {
 			return false;
 	return true;
 }
+*/
 
 /**
  * R -> _			=> 		_ -> R
  * R -> B -> _		=>		_ -> R -> B
  * R -> B -> D 		=> 		_ -> R -> F
  */
+/*
 bool SogoBoard::move(Cell robotCell, Cell nextCell) {
 	// Move box, if any
 	if (at(nextCell) == Dict::box) {
@@ -70,3 +71,4 @@ bool SogoBoard::move(Cell robotCell, Cell nextCell) {
 
 	return false;
 }
+*/

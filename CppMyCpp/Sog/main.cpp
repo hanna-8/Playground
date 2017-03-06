@@ -1,4 +1,4 @@
-#include "Sogo.h"
+#include "SogoBoard.h"
 
 #include <chrono>
 #include <iostream>
@@ -9,32 +9,34 @@ const std::string INPUT_FILE_NAME = "in.txt";
 
 
 int main() {
-    auto start = std::chrono::high_resolution_clock::now();
+  auto start = std::chrono::high_resolution_clock::now();
 
-    try {
-    	SogoBoard board;
+  try {
+    SogoBoard board;
 
-		// Throw exceptions in case any i/o operation fails.
-		std::ifstream in(INPUT_FILE_NAME);			
-		in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    // Throw exceptions in case any i/o operation fails.
+    std::ifstream in(INPUT_FILE_NAME);			
+    in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    
+    in >> board;
+    std::cout << board;
 
-		in >> board;
-		std::cout << board;
+//    Sogo sogo;
+//    sogo.solve(board);
+  }
 
-    	Sogo sogo;
-    	sogo.run(board);
-    }
-	catch (const std::ifstream::failure& e) {
-		std::cout << "Exception opening / reading / closing the file " << INPUT_FILE_NAME << ".\n";
-	}
-	catch (const std::exception& e) {
-		std::cout << e.what() << std::endl;
-	}
+  catch (const std::ifstream::failure& e) {
+    std::cout << "Exception opening / reading / closing the file " << INPUT_FILE_NAME << ".\n";
+  }
 
-	auto end = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double, std::milli> elapsed = end - start;
+  catch (const std::exception& e) {
+    std::cout << e.what() << std::endl;
+  }
 
-    std::cout << "Time: " << elapsed.count() << " ms\n";
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double, std::milli> elapsed = end - start;
 
-    return 0;
+  std::cout << "Time: " << elapsed.count() << " ms\n";
+
+  return 0;
 }

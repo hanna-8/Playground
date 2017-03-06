@@ -5,7 +5,7 @@
 
 
 // Returns true if solvable
-bool Sogo::run(const SogoBoard& board) const {
+bool Sogo::solve(const SogoBoard& board) const {
 
 	if (board.solved())
 		return true;
