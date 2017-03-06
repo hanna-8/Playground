@@ -17,7 +17,7 @@ public class Streams {
         String s = f.apply(list);
         //System.out.println(s);
         long endTime = System.nanoTime();
-        return endTime - startTime;
+        return (endTime - startTime) / 1_000_000;
     }
 
     public static void reducers(List<String> strings) {
@@ -33,8 +33,16 @@ public class Streams {
             s.close();
 
 
-            List<String> newList = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9");
+            //List<String> newList = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9");
             ArrayList<String> clonedList = new ArrayList<>(list);
+
+
+            for(int i = 0; i < 100; ++i) list.addAll(clonedList);
+
+            while(1 == 1) {
+                System.out.println("c: " + measure(list, (l) -> l.stream().reduce("", String::concat, String::concat)));
+                System.out.println("r: " + measure(list, (l) -> l.stream().reduce("", String::concat)));
+            }
 
 //            System.out.println(measure(list,       (l) -> l.stream().reduce("",
 //                    (s1, s2) -> {
@@ -46,9 +54,6 @@ public class Streams {
 //                        return s1.concat(s2);
 //                    })));
 
-            System.out.println(measure(list, (l) -> l.stream().reduce("0", String::concat, String::concat)));
-            System.out.println(measure(clonedList, (l) -> l.stream().reduce("", String::concat)));
-//
 //            System.out.println(measure(list, (l) -> l.parallelStream().reduce("", String::concat, String::concat)));
 //            System.out.println(measure(clonedList, (l) -> l.parallelStream().reduce("", String::concat)));
 //            System.out.println(measure(list, (l) -> l.parallelStream().reduce("0", String::concat, String::concat)));
