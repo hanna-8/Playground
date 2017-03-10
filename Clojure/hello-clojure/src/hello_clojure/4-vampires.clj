@@ -13,8 +13,7 @@
 
 (defn mapify-values
   [values converters keys]
-  (reduce conj {}
-          (map (fn [val conv key] [key (conv val)])
+  (into {} (map (fn [val conv key] [key (conv val)])
                values converters keys)))
 ;; ["Edward Cullen" "10"] [identity read-string] [:name :age] ->
 ;; {name: "Edward Cullen", :age 10}
@@ -33,20 +32,17 @@
   (map #(mapify-values % converters keys) (read-suspects filename)))
 ;; ({:name "Edward Cullen" :glitter 10} {:name "Bella Swan"  ...)
 
-(mapify filename [identity read-string] [:name :glitter])
+(def vampires (mapify filename [identity read-string] [:name :glitter]))
 
 
 (defn glitter-filter
   [min-glitter suspects]
   (filter #(< min-glitter (:glitter %)) suspects))
 
-(glitter-filter 3
- (mapify filename [identity read-string] [:name :glitter]))
-
 
 (defn vampire-names
   [vampire-details]
-  (map #(:name %) vampire-details))
+  (map :name vampire-details))
 
 (vampire-names
  (glitter-filter 3
@@ -56,6 +52,25 @@
      (glitter-filter 3)
      (vampire-names))
 
+(defn append
+  [lst suspect]
+  (if (validate validators suspect)
+    (conj lst suspect)
+    lst))
 
+(defn validate
+  [validators record]
+  (every?
+   (fn [[k validator]] (validator (k record)))
+   validators))
 
+(def validators { :name (complement nil?) :glitter (complement nil?)})
+
+(defn csvfy
+  [suspects filename]
+  (spit filename
+        (clojure.string/join "\n"
+                             (map #(clojure.string/join
+                                    ", "
+                                    ((juxt :name :glitter) %)) suspects))))
 

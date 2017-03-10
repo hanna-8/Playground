@@ -90,5 +90,9 @@
 ;; arrow
 (-> [2 5 4 1 3 6] (reverse) (rest) (sort) (last))
 
-;; duplicate
+;; constructs
+(conj [0] 1 2 3 4)
+(cons 4 [0])
+(into [0] [1 2 3 4])
+
 
