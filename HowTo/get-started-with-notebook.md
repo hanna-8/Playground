@@ -22,11 +22,9 @@
 
 ### Display those cool wordclouds
 
-  1. Open a command line tool and type  
-  `pip install wordcloud`.
+  1. Download the "wheel" package for the [wordcloud version you need](http://www.lfd.uci.edu/~gohlke/pythonlibs/#wordcloud) (most probably wordcloud‑1.2.1‑cp36‑cp36m‑win_amd64.whl).
   
-  2. In case you get an error stating that `Microsoft Visual C++ 14.0 is required. Get it with "Microsoft Visual C++ Build Tools": : http://landinghub.visualstudio.com/visual-cpp-build-tools` , download and install the Microsoft Visual C++ Build Tools.  
-  Repeat step 1.
+  2. From a CLI, install the package with pip, e.g. `pip install wordcloud‑1.2.1‑cp36‑cp36m‑win_amd64.whl`.
   
   3. Test it.  
   You can either use [Eugen's notebook on classification](https://github.com/eugen/mlstudy/tree/master/3_logistic_regression) to display the same wordclouds, or create your own.  
