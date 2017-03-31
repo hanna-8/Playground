@@ -90,9 +90,23 @@
 ;; arrow
 (-> [2 5 4 1 3 6] (reverse) (rest) (sort) (last))
 
-;; constructs
-(conj [0] 1 2 3 4)
-(cons 4 [0])
-(into [0] [1 2 3 4])
+;; constructsn
+(conj [0 1] 2 3 4)
+(cons 0 [1 2])
+(into [0 1] [2 3 4])
+
+;; flatten
+(#((fn [sec acc] (if (empty? sec)
+                   acc
+                   (if (counted? (first sec))
+                     (recur (concat (first sec) (rest sec)) acc)
+                     (recur (rest sec) (conj acc (first sec))))))
+   % [])
+ '((1 2) 3 [4 [5 6]]))
+
+;; capital letters
+(apply str (re-seq #"[A-Z]*" "AbCDef gHi"))
+()
+
 
 

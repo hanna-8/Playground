@@ -1,6 +1,4 @@
-(ns hello-clojure.vampires
-  (:gen-class))
-
+(ns hello-clojure.vampires)
 
 (def filename "vampires.csv")
 
@@ -72,5 +70,6 @@
         (clojure.string/join "\n"
                              (map #(clojure.string/join
                                     ", "
-                                    ((juxt :name :glitter) %)) suspects))))
+                                    ((juxt :name :glitter) %))
+                                  suspects))))
 
