@@ -2,9 +2,8 @@
   (:require [clojure.string :as str])
   (:require [clj-time.core :as time])
   (:require [clj-time.format :as tf])
-  (:require [clojure.data.csv :as csv]))
-
-
+  (:require [clojure.data.csv :as csv])
+  (:require [clojure.data.json :as json]))
 
 
 (defn extract-age
@@ -76,15 +75,12 @@
 
 (defn load-human
   [[name surname birthdate]]
-  (str "\t{ \"name\": " name
-       ", \"surname\": " surname
-       ", \"birthdate\": " birthdate " }"))
+  (json/write-str {:name name :surname surname :birthdate birthdate}))
+
 
 (defn load-json
   [humans]
-  (str "{ \"humans\": [ \n"
-       (str/join ",\n" (map load-human humans))
-       "\n\t]\n}"))
+  (json/write-str {:humans (map load-human humans)}))
 
 
 (def in-file "humans.csv")

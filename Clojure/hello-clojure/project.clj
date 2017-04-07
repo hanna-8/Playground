@@ -6,7 +6,8 @@
   :dependencies [ [org.clojure/clojure "1.8.0"]
                   [clj-time "0.13.0"]
                   [org.clojure/data.csv "0.1.3"]
-                  [org.clojure/test.check "0.9.0"]]
+                  [org.clojure/test.check "0.9.0"]
+                  [org.clojure/data.json "0.2.6"]]
   :main ^:skip-aot hello-clojure.core
   :target-path "target/%s"
   :plugins [ [lein-ancient "0.6.10"] ]
