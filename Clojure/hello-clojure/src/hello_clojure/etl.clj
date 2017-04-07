@@ -5,9 +5,6 @@
   (:require [clojure.data.csv :as csv]))
 
 
-(def in-file "humans.csv")
-(def out-file "humans.json")
-
 
 
 (defn extract-age
@@ -20,11 +17,11 @@
 
 
 (defn extract
-  [file]
-  (->> (csv/read-csv (slurp file))
+  [csvs-blob]
+  (->> (csv/read-csv csvs-blob)
        (map (fn [[n s a]] [n s (extract-age a)]))))
 
-(extract filename)
+;; (extract in-file)
 ;; (["Edward" "Cullen" {:years 1, :months 0, :days 9}] ...
 
 
@@ -84,18 +81,23 @@
        ", \"birthdate\": " birthdate " }"))
 
 (defn load-json
-  [out-file humans]
-  (spit out-file (str "{ \"humans\": [ \n"
-                      (str/join ",\n" (map load-human humans))
-                      "\n\t]\n}")))
+  [humans]
+  (str "{ \"humans\": [ \n"
+       (str/join ",\n" (map load-human humans))
+       "\n\t]\n}"))
+
+
+(def in-file "humans.csv")
+(def out-file "humans.json")
 
 (defn csv-to-json
   [in-file]
-  (->> in-file
+  (->> (slurp in-file)
        extract
        validate
        transform
-       (load-json out-file)))
+       load-json
+       (spit out-file)))
 
 
 
