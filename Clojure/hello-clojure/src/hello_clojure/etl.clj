@@ -1,99 +1,86 @@
 (ns hello-clojure.etl
-  (:require [clojure.string :as str])
-  (:require [clj-time.core :as time])
-  (:require [clj-time.format :as tf])
-  (:require [clojure.data.csv :as csv])
-  (:require [clojure.data.json :as json]))
+  (:require [clojure.data.json :as json])
+  (:require [clojure.spec :as spec])
+  (:require [clj-time.core :as time]))
 
+
+
+;; E ...
 
 (defn extract-age
   [age-str]
-  (zipmap (map keyword (re-seq #"[a-z]+" age-str))
-          (map read-string (re-seq #"\d" age-str))))
-
-; (extract-age " 1 years,   5 days, 3 months")
-; {:years 1, :days 5, :months 3}
-
+  (zipmap (map keyword (re-seq #"[a-z]+" age-str)) ;words
+          (map read-string (re-seq #"\d+" age-str)))) ;numbers
 
 (defn extract
   [csvs-blob]
-  (->> (csv/read-csv csvs-blob)
+  (->> (clojure.data.csv/read-csv csvs-blob)
        (map (fn [[n s a]] [n s (extract-age a)]))))
 
-;; (extract in-file)
-;; (["Edward" "Cullen" {:years 1, :months 0, :days 9}] ...
 
 
-(defn valid-name
-  [name]
-  (some? (re-matches #"[A-Za-z \\-]+" name)))
+;; ... V ...
 
-(defn valid-age
-  [age]
-  (or (some? (:years age))
-      (some? (:months age))
-      (some? (:days age))))
+(def age-keys? #{:days :months :years})
+
+(spec/def ::name (spec/and string? #(not (clojure.string/blank? %))))
+(spec/def ::age (spec/map-of age-keys? number? :min-count 1))
+
+(spec/def :unq/human (spec/tuple ::name ::name ::age))
 
 (defn validate
   [humans]
-  (filter (fn 
-            [[name surname age]]
-            (and (valid-name name)
-                 (valid-name surname)
-                 (valid-age age)))
-          humans))
+  (filter #(spec/valid? ::human %) humans))
 
 
-(defn fill-nil
-  [val]
-  (if (nil? val) 0 val))
+
+;; ... T ...
 
 (defn birth-date
-  ;; {years: 1, months: 1, days: 1} => Date one year & month & day ago.
   [age]
   (time/minus (time/now)
-              (time/years (fill-nil (age :years)))
-              (time/months (fill-nil (age :months)))
-              (time/days (fill-nil (age :days)))))
+              (time/years (age :years))
+              (time/months (age :months))
+              (time/days (age :days))))
 
-(birth-date {:years 1 :months 2 :days 1})
-(birth-date {:days 1})
-;; (birth-date (mapify-age "1 days, 1 years, 1 months"))
+(defn fill-age-gaps
+  [age]
+  (zipmap age-keys? (map #(or (age %) 0) age-keys?)))
 
 (defn transform-age
-  ;; "1 days, 1 years, 1 months" => birthdate = today - 1y, 1m & 1d.
   [age]
-  (tf/unparse (tf/formatters :rfc822) (birth-date age)))
-
-;; (transform-age "1 days, 1 years, 1 months")
-
+  (let [newage (fill-age-gaps age)]
+  (clj-time.format/unparse (clj-time.format/formatters :rfc822) (birth-date newage))))
 
 (defn transform
   [humans]
   (map (fn [[ln fn age]] [ln fn (transform-age age)]) humans))
 
 
+
+;; ... L.
+
 (defn load-human
   [[name surname birthdate]]
-  (json/write-str {:name name :surname surname :birthdate birthdate}))
-
+  (assoc {} :name name :surname surname :birthdate birthdate))
 
 (defn load-json
   [humans]
   (json/write-str {:humans (map load-human humans)}))
 
 
+
+;; Run.
+
 (def in-file "humans.csv")
 (def out-file "humans.json")
 
 (defn csv-to-json
   [in-file]
-  (->> (slurp in-file)
+  (->> (slurp in-file) ; side-effect
        extract
        validate
        transform
        load-json
-       (spit out-file)))
-
-
+       (spit out-file))) ; side-effect
 
