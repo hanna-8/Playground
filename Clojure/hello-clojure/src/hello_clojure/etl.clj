@@ -26,11 +26,11 @@
 (spec/def ::name (spec/and string? #(not (clojure.string/blank? %))))
 (spec/def ::age (spec/map-of age-keys? number? :min-count 1))
 
-(spec/def :unq/human (spec/tuple ::name ::name ::age))
+(spec/def ::human (spec/tuple ::name ::name ::age))
 
 (defn validate
   [humans]
-  (filter #(spec/valid? :unq/human %) humans))
+  (filter #(spec/valid? ::human %) humans))
 
 
 ;; ... T ...
