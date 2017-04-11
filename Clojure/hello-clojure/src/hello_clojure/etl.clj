@@ -1,7 +1,9 @@
 (ns hello-clojure.etl
+  (:require [clojure.data.csv :as csv])
   (:require [clojure.data.json :as json])
   (:require [clojure.spec :as spec])
-  (:require [clj-time.core :as time]))
+  (:require [clj-time.core :as time])
+  (:require [clj-time.format :as tformat]))
 
 
 ;; E ...
@@ -13,7 +15,7 @@
 
 (defn extract
   [csvs-blob]
-  (->> (clojure.data.csv/read-csv csvs-blob)
+  (->> (csv/read-csv csvs-blob)
        (map (fn [[n s a]] [n s (extract-age a)]))))
 
 
@@ -28,7 +30,7 @@
 
 (defn validate
   [humans]
-  (filter #(spec/valid? ::human %) humans))
+  (filter #(spec/valid? :unq/human %) humans))
 
 
 ;; ... T ...
@@ -36,8 +38,8 @@
 (defn birth-date
   [age]
   (time/minus (time/now)
-              (time/years (age :years))
-              (time/months (age :months))
+              (time/years (age :years)) 
+             (time/months (age :months))
               (time/days (age :days))))
 
 (defn fill-age-gaps
@@ -47,7 +49,7 @@
 (defn transform-age
   [age]
   (let [newage (fill-age-gaps age)]
-  (clj-time.format/unparse (clj-time.format/formatters :rfc822) (birth-date newage))))
+  (tformat/unparse (tformat/formatters :rfc822) (birth-date newage))))
 
 (defn transform
   [humans]
@@ -60,7 +62,7 @@
   [[name surname birthdate]]
   (assoc {} :name name :surname surname :birthdate birthdate))
 
-(defn load-json
+(defn load-to-json
   [humans]
   (json/write-str {:humans (map load-human humans)}))
 
@@ -71,11 +73,11 @@
 (def out-file "humans.json")
 
 (defn csv-to-json
-  [in-file]
-  (->> (slurp in-file) ; side-effect
+  [inf outf]
+  (->> (slurp inf) ; side-effect
        extract
        validate
        transform
-       load-json
-       (spit out-file))) ; side-effect
+       load-to-json
+       (spit outf))) ; side-effect
 
