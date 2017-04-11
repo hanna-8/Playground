@@ -4,7 +4,6 @@
   (:require [clj-time.core :as time]))
 
 
-
 ;; E ...
 
 (defn extract-age
@@ -16,7 +15,6 @@
   [csvs-blob]
   (->> (clojure.data.csv/read-csv csvs-blob)
        (map (fn [[n s a]] [n s (extract-age a)]))))
-
 
 
 ;; ... V ...
@@ -31,7 +29,6 @@
 (defn validate
   [humans]
   (filter #(spec/valid? ::human %) humans))
-
 
 
 ;; ... T ...
@@ -57,7 +54,6 @@
   (map (fn [[ln fn age]] [ln fn (transform-age age)]) humans))
 
 
-
 ;; ... L.
 
 (defn load-human
@@ -67,7 +63,6 @@
 (defn load-json
   [humans]
   (json/write-str {:humans (map load-human humans)}))
-
 
 
 ;; Run.

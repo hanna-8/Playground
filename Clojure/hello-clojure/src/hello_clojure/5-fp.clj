@@ -35,3 +35,11 @@
 ((fn [& args] (reverse (seq args))) 1 2 3 4)
 (->> '(1 2 3) '(count inc))
 
+
+(defn comp-fn
+  ([] comp-fn)
+  ([f & r]
+   (if (seq r)
+     (fn [& args] (f (apply (apply comp-fn r) args)))
+     f)))
+

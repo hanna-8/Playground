@@ -1,36 +1,4 @@
-# hello-clojure
+## hello-clojure
 
-FIXME: description
+Collection of learning Clojure scribbles, mainly following the path dictated by [Clojure for the Brave and True](http://www.braveclojure.com/clojure-for-the-brave-and-true/) but not only.
 
-## Installation
-
-Download from http://example.com/FIXME.
-
-## Usage
-
-FIXME: explanation
-
-    $ java -jar hello-clojure-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2017 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
