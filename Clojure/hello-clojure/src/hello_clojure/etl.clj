@@ -16,7 +16,7 @@
 (defn extract
   [csvs-blob]
   (->> (csv/read-csv csvs-blob)
-       (map (fn [[n s a]] [n s (extract-age a)]))))
+       (map #(update-in % [2] extract-age))))
 
 
 ;; ... V ...
@@ -38,8 +38,8 @@
 (defn birth-date
   [age]
   (time/minus (time/now)
-              (time/years (age :years)) 
-             (time/months (age :months))
+              (time/years (age :years))
+              (time/months (age :months))
               (time/days (age :days))))
 
 (defn fill-age-gaps
@@ -48,12 +48,12 @@
 
 (defn transform-age
   [age]
-  (let [newage (fill-age-gaps age)]
-  (tformat/unparse (tformat/formatters :rfc822) (birth-date newage))))
+  (let [complete-age (fill-age-gaps age)]
+  (tformat/unparse (tformat/formatters :rfc822) (birth-date complete-age))))
 
 (defn transform
   [humans]
-  (map (fn [[ln fn age]] [ln fn (transform-age age)]) humans))
+  (map #(update-in % [2] transform-age) humans))
 
 
 ;; ... L.
