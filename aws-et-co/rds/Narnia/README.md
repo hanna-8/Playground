@@ -16,3 +16,24 @@ Used:
 * MS SQL Server 2016;
 * SQL Azure MW v5.15.6.
 * SSMS v17.1.
+
+Example output:
+
+```
+The Chronicles of Narnia: Characters inventory  
+==============================================  
+
+Name                 | Appearances Nr  | Role  
+-------------------- | --------------- | -----  
+Aslan                | 7               | Major  
+Digory Kirke         | 3               | Major  
+Lucy Pevensie        | 5               | Major  
+Reepicheep the Mouse | 3               | Minor  
+----------------------------------------------  
+
+The following characters appear in more than 4  
+volumes of Narnia:  
+* Aslan  
+* Lucy Pevensie  
+----------------------------------------------  
+```
