@@ -1,7 +1,7 @@
-## Demo VB.NET project: access a db stored locally or in AWS RDS
+## Demo VB.NET project: access an SQL Server db stored locally or in AWS RDS
 
 Narnia is a windows console application that encompases VB.NET code snippets for the following:
-* Connect to a database stored in AWS RDS or locally (on-premises);
+* Connect to an SQL Server database stored in AWS RDS or locally (on-premises);
 * Perform an SQL query on it;
 * Call a stored procedure.
 
