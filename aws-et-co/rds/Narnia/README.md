@@ -10,3 +10,5 @@ Narnia is a windows console application that encompases VB.NET code snippets for
 The Microsoft SQL Server Management Studio (SSMS) can be used to handle both databases.
 
 The [SetupDB.sql](Narnia/SetupDB.sql) sql commands were used to create the local database.
+
+The project was created with Visual Studio 2017.
