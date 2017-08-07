@@ -11,4 +11,8 @@ The Microsoft SQL Server Management Studio (SSMS) can be used to handle both dat
 
 The [SetupDB.sql](Narnia/SetupDB.sql) sql commands were used to create the local database.
 
-The project was created with Visual Studio 2017.
+Used:
+* Visual Studio 2017;
+* MS SQL Server 2016;
+* SQL Azure MW v5.15.6.
+* SSMS v17.1.
