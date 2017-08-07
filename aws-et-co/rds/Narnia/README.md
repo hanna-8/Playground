@@ -5,7 +5,7 @@ Narnia is a windows console application that encompases VB.NET code snippets for
 * Perform an SQL query on it;
 * Call a stored procedure.
 
-[SQL Database Migration Wizard](http://sqlazuremw.codeplex.com/) was used to migrate the local DB to RDS. Check-out answers to [this Stackoverflow question](http://sqlazuremw.codeplex.com/).
+[SQL Database Migration Wizard](http://sqlazuremw.codeplex.com/) was used to migrate the local DB to RDS. Check-out answers to [this Stackoverflow question](https://stackoverflow.com/questions/10516118/migrate-to-amazon-sql-server-rds).
 
 The Microsoft SQL Server Management Studio (SSMS) can be used to handle both databases.
 
