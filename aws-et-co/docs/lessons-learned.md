@@ -19,6 +19,6 @@ A few lessons I learned while playing around with the AWS free tier services.
 ### Amazon RDS storage - 20GB for a MB database.
 
 **Issue**: The RDS storage claims to be approaching the 20GB limit. My database has one table with 4 columns and 5 rows :|.  
-**Reason**:
+**Reason**: Under investigation. Maybe the log files.
 
 
