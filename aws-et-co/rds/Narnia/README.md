@@ -1,13 +1,39 @@
-## VB.NET project used as demo for accessing a DB stored locally OR in AWS RDS
+## Demo VB.NET project: access an SQL Server db stored locally or in AWS RDS
 
 Narnia is a windows console application that encompases VB.NET code snippets for the following:
-* Connect to local (on-premises) or AWS RDS database;
+* Connect to an SQL Server database stored in AWS RDS or locally (on-premises);
 * Perform an SQL query on it;
 * Call a stored procedure.
 
-The [SetupDB.sql](.\SetupDB.sql) sql commands were used to create the local database.
+[SQL Database Migration Wizard](http://sqlazuremw.codeplex.com/) was used to migrate the local DB to RDS. Check-out answers to [this Stackoverflow question](https://stackoverflow.com/questions/10516118/migrate-to-amazon-sql-server-rds).
 
-[SQL Database Migration Wizard](http://sqlazuremw.codeplex.com/) was used to migrate the local DB to RDS. Check-out answers to [this Stackoverflow question](http://sqlazuremw.codeplex.com/).
+The Microsoft SQL Server Management Studio (SSMS) can be used to handle both databases.
 
-The Microsoft SQL Server Management Studio (SSMS) can be used to access both databases.
+The [SetupDB.sql](Narnia/SetupDB.sql) sql commands were used to create the local database.
 
+Used:
+* Visual Studio 2017;
+* MS SQL Server 2016;
+* SQL Azure MW v5.15.6.
+* SSMS v17.1.
+
+Example output:
+
+```
+The Chronicles of Narnia: Characters inventory  
+==============================================  
+
+Name                 | Appearances Nr  | Role  
+-------------------- | --------------- | -----  
+Aslan                | 7               | Major  
+Digory Kirke         | 3               | Major  
+Lucy Pevensie        | 5               | Major  
+Reepicheep the Mouse | 3               | Minor  
+----------------------------------------------  
+
+The following characters appear in more than 4  
+volumes of Narnia:  
+* Aslan  
+* Lucy Pevensie  
+----------------------------------------------  
+```
