@@ -42,6 +42,8 @@ out/
 target/
 fpinscala/
 datas/
+obj/
+debug/
 
 # Resources
 *.mp3
