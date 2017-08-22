@@ -20,5 +20,8 @@ A few lessons I learned while playing around with the AWS free tier services.
 
 **Issue**: The RDS storage claims to be approaching the 20GB limit. My database has one table with 4 columns and 5 rows :|.  
 **Reason**: Under investigation. Maybe the log files.
-
+**Solution**: Set the retention period of trace and dump files to 0. Fingers crossed for the size of the instance to decrease as the refresh usually takes a while (half a day or so).
+**References**:
+* [AWS RDS: Working with Trace and Dump files](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.SQLServer.CommonDBATasks.TraceFiles.html#Appendix.SQLServer.CommonDBATasks.TraceFiles.PurgeTraceFiles): *"For security reasons, you cannot delete a specific trace or dump file on a SQL Server DB instance. To delete all unused trace or dump files, set the retention period for the files to 0."*;
+* [stackoverflow question](https://stackoverflow.com/questions/45811540/how-to-delete-and-disable-logs-for-an-amazon-rds-sql-server-instance?noredirect=1#comment78589791_45811540).
 
