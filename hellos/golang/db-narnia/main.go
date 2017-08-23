@@ -25,7 +25,7 @@ func main() {
 	wg.Add(2)
 
 	go printAll(conn, &wg)
-  go compute(conn, &wg)
+  	go compute(conn, &wg)
 
 	wg.Wait()
 	
