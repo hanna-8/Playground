@@ -25,7 +25,8 @@ A few lessons I learned while playing around with the AWS free tier services.
 
 **Issue**: The RDS storage claims to be approaching the 20GB limit. My database has one table with 4 columns and 5 rows :|.
 
-**Reason**: Under investigation. Maybe the log files.
+**Reason**: Under investigation. Maybe the log files.  
+*Edit* Nope, not the logs. Costs started increasing :-|. Apparently due to instances that have been long removed. Wrote to Amazon and on [stackoverflow](https://stackoverflow.com/questions/45855769/amazon-rds-storage-how-is-it-computed). Tomorrow I'll remove my account if no solution is found.
 
 **Solution**: Set the retention period of trace and dump files to 0. Fingers crossed for the size of the instance to decrease as the refresh usually takes a while (half a day or so).
 
