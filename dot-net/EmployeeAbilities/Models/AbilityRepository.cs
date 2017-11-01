@@ -13,7 +13,7 @@ namespace EmployeeAbilities.Models
     public interface IAbilityRepository     
     {
         IEnumerable<Ability> GetFiltered(string query);
-        void AddAsync(Ability ability);
+        Task AddAsync(Ability ability);
 
         void Remove(string name);
         
@@ -44,17 +44,19 @@ namespace EmployeeAbilities.Models
             client = CreateClient(configuration["aws-access-key"], configuration["aws-secret-key"]);
         }
 
-        public async void AddAsync(Ability ability)
+        public async Task AddAsync(Ability ability)
         {
-            var items = new Dictionary<string, AttributeValue> {{ "Name", new AttributeValue { S = ability.Name }}};
-            if (ability.Employees.Count > 0) items.Add("Employees", new AttributeValue { SS = ability.Employees });
-            if (ability.Tags.Count > 0) items.Add("Tags", new AttributeValue { L = new List<AttributeValue>(from tag in ability.Tags select new AttributeValue(tag))});
-
             await client.PutItemAsync(
                 tableName: "ability",
-                item: items
+                item: new Dictionary<string, AttributeValue> 
+                {
+                    { "Name", new AttributeValue { S = ability.Name }},
+                    { "Employees", new AttributeValue { SS = ability.Employees }},
+                    { "Tags", new AttributeValue { SS = ability.Tags }}
+                }
             );
-            abilities.Add(ability);
+
+            /* abilities.Add(ability); */
         }
 
         public void AddEmployeeToAbility(string abilityName, string employeeName)

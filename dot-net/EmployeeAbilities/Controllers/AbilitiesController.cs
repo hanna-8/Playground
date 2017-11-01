@@ -20,7 +20,11 @@ namespace EmployeeAbilities.Controllers
 
         // POST api/abilities
         [HttpPost]
-        public void AddNewAbility([FromBody]Ability ability) => abilities.AddAsync(ability);
+        public async Task<IActionResult> AddNewAbility([FromBody]Ability ability) 
+        {
+            await abilities.AddAsync(ability);
+            return Ok();
+        } 
 
         // POST api/abilities/abilityName
         [HttpPost("{name}")]
