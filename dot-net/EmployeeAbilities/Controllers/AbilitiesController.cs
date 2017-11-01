@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using EmployeeAbilities.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -16,14 +17,18 @@ namespace EmployeeAbilities.Controllers
 
         // GET api/abilities?query=some-query
         [HttpGet]
-        public IEnumerable<Ability> GetFiltered([FromQuery]string query) => abilities.GetFiltered(query);
+        public async Task<IEnumerable<Ability>> GetFiltered([FromQuery]string query) => await abilities.GetFilteredAsync(query);
 
         // POST api/abilities
         [HttpPost]
         public async Task<IActionResult> AddNewAbility([FromBody]Ability ability) 
         {
-            await abilities.AddAsync(ability);
-            return Ok();
+            var status = await abilities.AddAsync(ability);
+            
+            if (status == HttpStatusCode.OK)
+                return Ok();
+            else
+                return NotFound();
         } 
 
         // POST api/abilities/abilityName
