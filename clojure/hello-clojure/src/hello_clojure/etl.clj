@@ -65,7 +65,7 @@
 (defn load-to-json
   [humans]
   (json/write-str {:humans (map load-human humans)}))
-X
+
 
 ;; Run.
 
