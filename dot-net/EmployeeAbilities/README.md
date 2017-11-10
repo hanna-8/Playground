@@ -141,7 +141,7 @@ curl http://localhost:5000/api/abilities?query=Cert
 
 **POST**  
 Add new:  
-curl -X POST -H "Content-Type: application/json" -d "{ \"Name\": \"fsharp\", \"tags\":[\"Programming Language\"],\"employees\":[]}" http://localhost:5000/api/abilities
+curl -X POST -H "Content-Type: application/json" -d "{ \"Name\": \"fsharp\", \"tags\":[\"Programming Language\"],\"employees\":[\"ibar\"]}" http://localhost:5000/api/abilities
 
 Update:  
 curl -X POST -f 'level=Expert' -f 'lastUsed=present' -f 'experience=8' -f 'employee=djitarasu' http://localhost:5000/api/abilities/fsharp
