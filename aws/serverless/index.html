@@ -1,0 +1,96 @@
+<!DOCTYPE html>  
+<html>  
+  <head>      
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $(".submit").click(function() {
+          inputObj = {
+            TableName: $(".table").val()
+          }
+
+          $.ajax({
+            url: "[...].amazonaws.com/prod/abilities", 
+            method: "GET", 
+            data: inputObj,
+            success: function (response) {
+              var tableContent = "<table><tr><th>Name</th><th>Tags</th><th>Employees</th></tr>"
+
+              $.each(response.Items, function(idx, item){
+     			tableContent += "<tr><td>" + item.name + "</td>"
+     			tableContent += "<td>" + JSON.stringify(item.tags) + "</td>"
+     			tableContent += "<td>" + JSON.stringify(item.employees) + "</td></tr>"
+   			  });
+
+              tableContent += "</table>"
+
+              $(".msg").html(tableContent)
+            }
+          })
+        })
+
+        $(".update").click(function() {
+          inputObj = {
+        	  "TableName": "ability",
+    		  "Item": {
+        	  	name: $(".a-name").val(),
+            	tags: [ $(".tag").val() ] ,
+            	employees: [ $(".employee").val() ]
+    		  }
+		    }
+
+          $.ajax({
+            url: "[...].amazonaws.com/prod/abilities", 
+            method: "POST", 
+            data: JSON.stringify(inputObj),
+            success: function (response) {
+              $(".msg").text(response.statusCode)
+            }
+          })
+        })
+
+        $(".delete").click(function() {
+          inputObj = {
+        	  TableName: "ability",
+    		  Key: {
+        	  	name: $(".d-name").val()
+    		  }
+		    }
+
+          $.ajax({
+            url: "[...].amazonaws.com/prod/abilities", 
+            method: "DELETE", 
+            data: JSON.stringify(inputObj),
+    		//dataType: 'jsonp',
+            success: function (response) {
+              $(".msg").text(response.statusCode)
+            }
+          })
+        })
+
+      })
+    </script>
+  </head>
+
+  <body>
+  	<h3> List </h3> 	
+    Table name: <input type="text" class="table" value="ability" />
+    <button class="submit">List</button>
+    <hr />
+
+    <h3> Add / Update </h3>
+    Name: <input type="text" class="a-name" value="cpp"/>
+    One tag :D <input type="text" class="tag" value="Programming Language"/>
+    One employee :D <input type="text" class="employee" value="anony"/>
+    <button class="update">Add / Update</button>
+    <hr />
+
+    <h3> Delete </h3>
+    Name: <input type="text" class="d-name" value="asdf"/>
+    <button class="delete">Delete</button>
+    <hr />
+
+    Response:
+    <div class="msg"></div>
+  </body>
+</html>  
