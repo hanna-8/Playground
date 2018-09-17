@@ -1,0 +1,30 @@
+<!doctype html>
+
+<html>
+
+<head>
+    <title>Queen Innuendo</title>
+</head>
+
+<body>
+    {% if track_list %}
+        <table border="1" cellpadding="5" cellspacing="2">
+            <tr>
+                <th>Title</th>
+                <th>Length</th>
+                <th>Genre</th>
+            </tr>
+            {% for track in track_list %}
+            <tr>
+                <td><a href="{% url 'tracks:details' track.id %}">{{ track.title }}</a></td>
+                <td>{{ track.length }}</td>
+                <td>{{ track.genre }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No tracks are available.</p>
+    {% endif %}
+</body>
+
+</html>
