@@ -44,7 +44,6 @@ fpinscala/
 datas/
 obj/
 debug/
-.vscode/
 
 # Resources
 *.mp3
