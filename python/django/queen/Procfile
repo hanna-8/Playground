@@ -1,1 +1,1 @@
-web: gunicorn innuendo_project.wsgi --log-file -
+web:gunicorn innuendo.wsgi --log-file -
