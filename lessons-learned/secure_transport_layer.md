@@ -20,8 +20,6 @@ Cons: has to be renewed every 3 months. However, "renewal is as easy as running 
 Pros: no cons of the above :).
 Cons: not free. However, not *extremely* costly either..
 
-We'll take the second approach, so Let's Encrypt!
-
 ```
 var https = require("https");
 var fs = require("fs");
@@ -36,7 +34,11 @@ https://timonweb.com/posts/running-expressjs-server-over-https/
 Notes: 
 1. Heroku does that (wildcard certificate \*.heroku not recommended? https://stackoverflow.com/a/22751658/777833 )
 2. Put the certificates in a secure place (e.g. ???)
-3. 
+3. For localhost:
+https://letsencrypt.org/docs/certificates-for-localhost/
+and
+https://derflounder.wordpress.com/2011/03/13/adding-new-trusted-root-certificates-to-system-keychain/
+
 
 
 ### Step 1. Use https between services
