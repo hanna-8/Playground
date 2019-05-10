@@ -6,19 +6,37 @@
 *Note*: the example code is using node.js with express.
 
 ### Step 1. Add support for https to our service(s)
-This translates to 'generate and use a cer
+This translates to 'generate and use an SSL certificate'.
 
-1. Use a self-signed certificate:
-e.g. openssl
-Pros: fast, nothing to install, useful for testing / development purposes.
-Cons: http://answers.ssl.com/2899/can-i-create-my-own-ssl-certificate
-2. Use a free Certificate Authority (e.g. Let's Encrypt)
-Pros: well... free.
-Cons: has to be renewed every 3 months. However, "renewal is as easy as running one simple command, which we can assign to a cron"
-(https://www.sitepoint.com/how-to-use-ssltls-with-node-js/)
+1. Heroku does that (wildcard certificate \*.heroku not recommended? https://stackoverflow.com/a/22751658/777833 )
+
+#### Step 1.1. Generate an SSL certificate
+
+This can be achieved in the following ways:
+
+1. Use a self-signed certificate (e.g. openssl)
+   - Pros: fast, nothing to install, useful for testing / development purposes.
+   - Cons: http://answers.ssl.com/2899/can-i-create-my-own-ssl-certificate
+2. Use a free Certificate Authority (e.g. Let's Encrypt):
+   - Pros: well... free.
+   - Cons: has to be renewed every 3 months. However, "renewal is as easy as running one simple command, which we can assign to a cron"
+   (https://www.sitepoint.com/how-to-use-ssltls-with-node-js/)
 3. Pay a trusted CA. 
-Pros: no cons of the above :).
-Cons: not free. However, not *extremely* costly either..
+   - Pros: no cons of the above :).
+   - Cons: not free. However, not *extremely* costly either..
+
+https://timonweb.com/posts/running-expressjs-server-over-https/
+
+Notes: 
+2. Put the certificates in a secure place (e.g. ???)
+3. For localhost:
+https://letsencrypt.org/docs/certificates-for-localhost/
+and
+https://derflounder.wordpress.com/2011/03/13/adding-new-trusted-root-certificates-to-system-keychain/
+
+--- see self stackoverflow answer
+
+#### Step 1.2. Use the certificate in the server app
 
 ```
 var https = require("https");
@@ -26,18 +44,16 @@ var fs = require("fs");
 
 [...]
 
+const sslOptions = {
+  key: fs.readFileSync("localhost.key"),
+  cert: fs.readFileSync("localhost.crt"),
+};
 
+const server = https.createServer(sslOptions, app);
+server.listen(process.env.PORT || 3001, function() {
+  console.log(`Listening on port ${server.address().port}...`);
+});
 ```
-
-https://timonweb.com/posts/running-expressjs-server-over-https/
-
-Notes: 
-1. Heroku does that (wildcard certificate \*.heroku not recommended? https://stackoverflow.com/a/22751658/777833 )
-2. Put the certificates in a secure place (e.g. ???)
-3. For localhost:
-https://letsencrypt.org/docs/certificates-for-localhost/
-and
-https://derflounder.wordpress.com/2011/03/13/adding-new-trusted-root-certificates-to-system-keychain/
 
 
 ### Step 2. Don't forget to remove support of http :p
