@@ -1,7 +1,7 @@
 ## How to secure the transport layer
 
 **Issue we want to solve**: prevent Man-In-The-Middle attacks.  
-**How we plan to solve it**: encrypt messages as they are sent to/from our service(s).
+**How we plan to solve it**: encrypt messages as they are sent to/from our service(s) by restricting the web app usage to https.
 
 *Note*: the example code is using node.js with express.
 
@@ -40,12 +40,15 @@ and
 https://derflounder.wordpress.com/2011/03/13/adding-new-trusted-root-certificates-to-system-keychain/
 
 
+### Step 2. Don't forget to remove support of http :p
 
-### Step 1. Use https between services
-* Modify frontend, backend (and all services, e.g. proxy) to call one another only via https.
-* Modify the CORS options in the backend to only accept calls from the https frontend.
+There are a lot of resources that prove that there is no performance issue when using TLS/SSL.  
+There is no excuse to use https only for 'some' pages :).
 
-### Step 2. Redirect all `http` to `https`:
+
+### Step 3. Redirect all `http` to `https`:
+
+Just in order to avoid the 404 pages when a user (accidently, not for attacking reasons, of course...) tries to access the app via http, redirect all http to https.
 
  * By using an already implemented middle layer: [express-force-https](https://www.npmjs.com/package/express-force-https):
    ```
@@ -70,5 +73,13 @@ https://derflounder.wordpress.com/2011/03/13/adding-new-trusted-root-certificate
    });
    ```
 
-### 3. Use hsts header ?
+### Step 4. Other measures
+https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Transport_Layer_Protection_Cheat_Sheet.md
+
+#### Step 4.1. Use the HSTS header
+- has privacy issues?
+
+#### Step 4.2. Use Secure cookies
+
+
 
