@@ -1,42 +1,66 @@
 ## How to secure the transport layer
 
-**Issue we want to solve**: prevent Man-In-The-Middle attacks.  
-**How we plan to solve it**: encrypt messages as they are sent to/from our service(s) by restricting the web app usage to https.
+Below are some travel notes from the path towards making a node.js express app only be accessible via https.  
+Hopefully some of the signs on the way are generic enough to also be used with other technologies.
 
-*Note*: the example code is using node.js with express.
+The following steps need to be taken:
+1. Add support for https;
+2. Redirect all http to https;
+3. Extra (but mandatory) measures:
+  - add the `hsts` header and 
+  - mark all cookies as `secure`.
+
+---
 
 ### Step 1. Add support for https to our service(s)
-This translates to 'generate and use an SSL certificate'.
+This actually translates to 'generate and use an SSL certificate'.
 
-1. Heroku does that (wildcard certificate \*.heroku not recommended? https://stackoverflow.com/a/22751658/777833 )
+#### The easy way: use the default SSL certificate on your PaaS (if any)
 
-#### Step 1.1. Generate an SSL certificate
+Depending on where the app is deployed, SSL support might come out of the box or simply translate to a small setting.
+
+E.g., on Heroku:
+* Free dynos have SSL enabled by default, with a default wildcard certificate (`\*.herokuapp.com`): see [this stackoverflow answer](https://stackoverflow.com/a/22751658/777833) for more details.
+* A custom SSL certificate can only be added to paid dynos: see the [heroky SSL docs](https://devcenter.heroku.com/articles/ssl).
+
+#### The hard (and recommended?) way
+#### Part 1: generate a custom SSL certificate
 
 This can be achieved in the following ways:
 
-1. Use a self-signed certificate (e.g. openssl)
+1. Use a **self-signed** certificate (e.g. openssl)
    - Pros: fast, nothing to install, useful for testing / development purposes.
    - Cons: http://answers.ssl.com/2899/can-i-create-my-own-ssl-certificate
-2. Use a free Certificate Authority (e.g. Let's Encrypt):
+2. Use a **free** Certificate Authority (e.g. Let's Encrypt):
    - Pros: well... free.
-   - Cons: has to be renewed every 3 months. However, "renewal is as easy as running one simple command, which we can assign to a cron"
-   (https://www.sitepoint.com/how-to-use-ssltls-with-node-js/)
-3. Pay a trusted CA. 
+   - Cons: has to be renewed every 3 months. However, "renewal is as easy as running one simple command, which we can assign to a cron" ([source](https://www.sitepoint.com/how-to-use-ssltls-with-node-js/))
+3. Pay a **trusted CA**. 
    - Pros: no cons of the above :).
    - Cons: not free. However, not *extremely* costly either..
 
-https://timonweb.com/posts/running-expressjs-server-over-https/
+***Important note***  
+Store the certificates in a secure place (e.g. behind a secret manager like keepass) and definitely do not store them in publicly accessible places like github. See [this answer](https://serverfault.com/a/648364/432012) for more details.
 
-Notes: 
-2. Put the certificates in a secure place (e.g. ???)
-3. For localhost:
-https://letsencrypt.org/docs/certificates-for-localhost/
-and
-https://derflounder.wordpress.com/2011/03/13/adding-new-trusted-root-certificates-to-system-keychain/
+**Example** of generating a localhost self-signed certificate:
+ - inspired from [Let's Encrypt](https://letsencrypt.org/docs/certificates-for-localhost/)
+ - the following command will create two files, `localhost.key` and `localhost.crt`:
+```
+ openssl req -x509 -out localhost.crt -keyout localhost.key \
+  -newkey rsa:2048 -nodes -sha256 \
+  -subj '/CN=localhost' -extensions EXT -config <( \
+   printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+```
 
---- see self stackoverflow answer
+#### The hard way:
+#### Part 2: trust the freshly generated SSL certificate
 
-#### Step 1.2. Use the certificate in the server app
+**Example** of trusting the prev. generated certificate on the localhost, taken from [this blog](https://derflounder.wordpress.com/2011/03/13/adding-new-trusted-root-certificates-to-system-keychain/):  
+`sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "./localhost.crt"`
+
+#### The hard way:
+#### Part 3: use the SSL certificate in the server app
+
+**Example** code:  
 
 ```
 var https = require("https");
@@ -55,25 +79,20 @@ server.listen(process.env.PORT || 3001, function() {
 });
 ```
 
+---
 
-### Step 2. Don't forget to remove support of http :p
+### Step 2. Redirect all `http` to `https`:
 
-There are a lot of resources that prove that there is no performance issue when using TLS/SSL.  
-There is no excuse to use https only for 'some' pages :).
+Just in order to avoid the 404 pages when a user (accidently, not for attacking reasons, of course...) tries to access the app via http, we also need to support http requests - and redirect them to https.
 
-
-### Step 3. Redirect all `http` to `https`:
-
-Just in order to avoid the 404 pages when a user (accidently, not for attacking reasons, of course...) tries to access the app via http, redirect all http to https.
-
+We would need a middle-layer to intercept all requests, verify if they come via an unencrypted channel and if so, redirect them. That can be echieved in two ways:
  * By using an already implemented middle layer: [express-force-https](https://www.npmjs.com/package/express-force-https):
    ```
    var secure = require("express-force-https");
    app.use(secure);
    ```
-
-   * Pros: code is cleaner. Would count on the package to be careful to do updates.
-   * Cons: actually didn't find a package recent enough or that seems to be kept up to date.
+   * Pros: code is clean. Would count on the package to be careful to do updates.
+   * Cons: actually didn't find any package recent enough or that seems to be kept up to date.
 
  * By manually implementing a middle layer:
    ```
@@ -89,13 +108,64 @@ Just in order to avoid the 404 pages when a user (accidently, not for attacking 
    });
    ```
 
-### Step 4. Other measures
-https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Transport_Layer_Protection_Cheat_Sheet.md
+#### Exception: on localhost we need to create two servers :/
 
-#### Step 4.1. Use the HSTS header
-- has privacy issues?
+Even if when deploying to Heroku creating one server is enough and it will be accessible via both http and https, on localhost we need to create two servers:
+* one that listens to the :80 port for http requests (and redirects them to https) and
+* one that listens on the :443 port for https requests.
 
-#### Step 4.2. Use Secure cookies
+**TODO** There's gotta be a common way for localhost and cloud-deployed app to listen to both and redirect http to https... just that I haven't found it (yet) :/...
+
+**Example code** for localhost:
+
+```
+const httpsServer = https.createServer(sslOptions, app);
+httpsServer.listen(443, function() {
+  console.log(`Listening on port ${httpsServer.address().port}...`);
+});
+
+// Also listen on http and redirect from all to https
+var httpServer = require("http");
+httpServer
+  .createServer(function(req, res) {
+    res.writeHead(301, {
+      Location: "https://" + req.headers["host"] + req.url,
+    });
+    res.end();
+  })
+  .listen(80);
+```
+
+### Step 3. Extra security measures
+... because no app is secure enough... because hackers are (too) creative...
 
 
 
+#### Step 3.1. Use the HSTS header
+
+Even one single http request can be a breach.  
+Enabling hsts is only a step towards https-only requests: it will instruct browsers to only use https to access our app *in the future*. That is, the very first request can still be done via http. But hey... something is better than nothing.
+
+E.g. example of an [attack](https://blog.duszynski.eu/hijacking-browser-tls-traffic-through-client-domain-hooking/) that leverages web apps that don't have hsts enabled.
+
+**Example code** using the [helmet npm package](https://github.com/helmetjs/helmet):
+```
+var hsts = require("hsts");
+
+app.use(
+  hsts({
+    maxAge: 15552000, // 180 days in seconds
+  })
+);
+```
+
+#### Step 3.2. Use Secure cookies
+
+Even if the app runs over https and we redirect all http to https, a user can still send their session id via the cookie over http.  
+In order to stop this, we need to use the secure flag for your cookies. 
+
+#### Other (hopefully) useful resources
+
+* [OWASP cheat sheet for transpor layer protection](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Transport_Layer_Protection_Cheat_Sheet.md)
+* [Secure authentication and sessions for node apps](http://scottksmith.com/blog/2015/06/15/secure-node-apps-against-owasp-top-10-authentication-and-sessions/)
+* [Helmet repo](https://github.com/helmetjs/helmet) - TODO: use it to add more secure headers;
