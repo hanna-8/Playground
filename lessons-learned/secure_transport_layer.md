@@ -26,11 +26,11 @@ E.g., on Heroku:
 
 ### The hard (and recommended?) way:
 
-a) generate a custom SSL certificate;  
-b) trust the generated certificate on our host;  
-c) use the certificate in our server.
+a) Generate a custom SSL certificate;  
+b) Trust the generated certificate on our host;  
+c) Use the certificate in our server.
 
-#### a. generate a custom SSL certificate
+#### a. Generate a custom SSL certificate
 
 This can be achieved in one of the following ways:
 
@@ -57,12 +57,12 @@ Store the certificates in a secure place (e.g. behind a secret manager like keep
    printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
 ```
 
-#### b. trust the freshly generated SSL certificate
+#### b. Trust the freshly generated SSL certificate
 
 **Example** of trusting the above generated certificate on the localhost, taken from [this blog](https://derflounder.wordpress.com/2011/03/13/adding-new-trusted-root-certificates-to-system-keychain/):  
 `sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "./localhost.crt"`
 
-#### c. use the SSL certificate in the server app
+#### c. Use the SSL certificate in the server app
 
 **Example** of using the above generated localhost certificate in our server app:
 
